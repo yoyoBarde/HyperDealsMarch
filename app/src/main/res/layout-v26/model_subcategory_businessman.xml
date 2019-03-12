@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
+    >
+
+<android.support.v7.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="2dp"
+android:layout_gravity="center_horizontal"
+    >
+
+    <Button
+        android:background="@drawable/subcategory_shape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="normal"
+        android:textColor="@color/colorPrimary"
+        android:textSize="15sp"
+        android:paddingVertical="3dp"
+        android:paddingHorizontal="5dp"
+        android:text="Bench and bath"
+        />
+</android.support.v7.widget.CardView>
+
+</LinearLayout>
