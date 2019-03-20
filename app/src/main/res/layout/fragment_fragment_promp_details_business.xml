@@ -14,6 +14,7 @@
 
 
     <TextView
+        android:id="@+id/tv_promoTitle"
         android:textSize="30dp"
         android:maxLines="2"
         android:textAlignment="center"
@@ -42,6 +43,7 @@
             android:textColor="@color/promostore_color"
             />
         <TextView
+            android:id="@+id/tv_promoStore"
             android:textSize="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -68,6 +70,7 @@
             android:textColor="@color/promostore_color"
             />
         <TextView
+            android:id="@+id/tv_promoPlace"
             android:textSize="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -93,6 +96,8 @@
             android:textColor="@color/promostore_color"
             />
         <TextView
+
+            android:id="@+id/tv_promoDescription"
             android:textSize="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -143,6 +148,7 @@
             android:textColor="@color/promostore_color"
             />
         <TextView
+            android:id="@+id/tv_promoContect"
             android:textSize="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -172,6 +178,7 @@ android:gravity="center"
             >
 
             <ImageView
+                android:id="@+id/iv_thumbsup"
                 android:layout_width="56dp"
                 android:layout_height="53dp"
                 android:layout_marginBottom="8dp"
@@ -204,6 +211,7 @@ android:gravity="center"
             android:layout_height="wrap_content">
 
             <ImageView
+                android:id="@+id/iv_call"
                 android:layout_width="56dp"
                 android:layout_height="53dp"
                 android:layout_marginBottom="8dp"
@@ -238,6 +246,8 @@ android:gravity="center"
             android:layout_height="wrap_content">
 
             <ImageView
+                android:id="@+id/iv_map"
+
                 android:layout_width="56dp"
                 android:layout_height="53dp"
                 android:layout_marginBottom="8dp"

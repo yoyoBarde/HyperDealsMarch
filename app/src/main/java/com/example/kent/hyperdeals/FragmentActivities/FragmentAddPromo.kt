@@ -57,7 +57,6 @@ class FragmentAddPromo : Fragment() {
                     val upload = DocumentSnapshot.toObject(HomeBusinessmanModel::class.java)
                     Log.d(TAG, DocumentSnapshot.getId() + " => " + DocumentSnapshot.getData())
                     promohomeBusinessman.add(upload)
-                    toast("success")
 
                     mAdapter = PromoHomeBusinessman (mSelected,promohomeBusinessman)
                     recyclerViewHomeBusinessman.adapter = mAdapter

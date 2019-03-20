@@ -3,20 +3,20 @@ package com.example.kent.hyperdeals.FragmentActivities
 import android.app.Dialog
 import android.app.DialogFragment
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.*
 import com.example.kent.hyperdeals.BusinessActivities.AddPromo
 import com.example.kent.hyperdeals.MyAdapters.CategoryAdapterBusiness
 import com.example.kent.hyperdeals.R
-import com.example.kent.hyperdeals.myInterfaces
+import com.example.kent.hyperdeals.Model.myInterfaces
 import kotlinx.android.synthetic.main.activity_dialog_fragment_add_category_business.*
 
 
 class DialogFragmentAddCategoryBusiness : DialogFragment() {
 
     var myAdapter:CategoryAdapterBusiness?=null
-
+val TAG = "DialogFragment"
     fun newInstance(): DialogFragmentAddCategoryBusiness {
         return DialogFragmentAddCategoryBusiness()
     }
@@ -34,9 +34,13 @@ class DialogFragmentAddCategoryBusiness : DialogFragment() {
                 super.onViewCreated(view, savedInstanceState)
 
 
+        for(i in 0 until AddPromo.globalCategorylist.size){
+
+     Log.e(TAG,"${AddPromo.globalCategorylist[i].Subcategories.size} - ${AddPromo.globalCategorylist[i].categoryName}")
+
+        }
+
                 myAdapter = CategoryAdapterBusiness(activity!!,AddPromo.globalCategorylist)
-
-
 
                 recyclerViewCategories.layoutManager = LinearLayoutManager(activity!!)
                 recyclerViewCategories.adapter = myAdapter
@@ -65,7 +69,7 @@ class DialogFragmentAddCategoryBusiness : DialogFragment() {
         val dialog = dialog
         if (dialog != null) {
             val width = ViewGroup.LayoutParams.MATCH_PARENT
-            val height = ViewGroup.LayoutParams.WRAP_CONTENT
+            val height = ViewGroup.LayoutParams.MATCH_PARENT
             dialog.window!!.setLayout(width, height)
          //   dialog.window!!.setGravity(Gravity.BOTTOM)
             dialog.window!!.setBackgroundDrawableResource(android.R.color.white )

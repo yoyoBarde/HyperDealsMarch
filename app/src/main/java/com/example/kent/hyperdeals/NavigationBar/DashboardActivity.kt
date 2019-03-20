@@ -18,6 +18,8 @@ import com.example.kent.hyperdeals.FragmentActivities.FragmentProMapList
 import com.example.kent.hyperdeals.FragmentActivities.FragmentProMap
 import com.example.kent.hyperdeals.MainActivity
 import com.example.kent.hyperdeals.NavigationOptionsActivity.Profile
+import com.example.kent.hyperdeals.NavigationOptionsActivity.UserPreference
+import com.example.kent.hyperdeals.NavigationOptionsActivity.UserRewards
 import com.example.kent.hyperdeals.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -36,7 +38,7 @@ class DashboardActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main3)
-
+        MainActivity.userLog = true
         setSupportActionBar(toolbar)
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container1.adapter = mSectionsPagerAdapter
@@ -144,11 +146,22 @@ class DashboardActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_send -> {
 
             }
+            R.id.nav_preferemce ->{
+                val intent = Intent (this, UserPreference::class.java)
+                startActivity(intent)
+            }
+            R.id.nav_rewards ->{
+                val intent = Intent (this, UserRewards::class.java)
+                startActivity(intent)
+
+            }
             R.id.nav_logout ->{
 
                 val intent = Intent (this, MainActivity::class.java)
                 startActivity(intent)
             }
+
+
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)

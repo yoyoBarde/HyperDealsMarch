@@ -2,6 +2,7 @@ package com.example.kent.hyperdeals.FragmentActivities
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -14,8 +15,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.kent.hyperdeals.FragmentsBusiness.Business_PromoProfile
 import com.example.kent.hyperdeals.MyAdapters.PromoListAdapter
-import com.example.kent.hyperdeals.MyAdapters.PromoModel
+import com.example.kent.hyperdeals.Model.PromoModel
 import com.example.kent.hyperdeals.Interface.RecyclerTouchListener
 
 import com.example.kent.hyperdeals.R
@@ -65,7 +67,7 @@ class FragmentReach : Fragment() {
                     promolist.add(upload)
                     toast("success")
 
-                    mAdapter = PromoListAdapter(mSelected, promolist)
+                    mAdapter = PromoListAdapter(activity!!,mSelected, promolist)
                     recyclerViewReach.adapter = mAdapter
 
                 }
@@ -91,6 +93,13 @@ class FragmentReach : Fragment() {
                         .placeholder(R.mipmap.ic_launcher)
                         .into(myDialogBusiness!!.reachPromoPicture)
 
+
+                myDialogBusiness!!.specificPromoContainer.setOnClickListener {
+                    PromoListAdapter.promoProfile = promos
+                    startActivity(Intent(activity!!,Business_PromoProfile::class.java))
+
+
+                }
                 myDialogBusiness!!.tvPromoNameBusinessman.text = promolist[position].promoname
                 myDialogBusiness!!.tvPromoLocationBusinessman.text = promolist[position].promoPlace
                 myDialogBusiness!!.tvSent.text = promos.sent.toString() + " people sent"

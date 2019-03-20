@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import com.example.kent.hyperdeals.FragmentsBusiness.Business_PromoProfile
 import com.example.kent.hyperdeals.NavigationBar.DashboardActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
@@ -17,7 +18,8 @@ import kotlinx.android.synthetic.main.loginactivity.*
 class LoginActivity : AppCompatActivity() {
 companion object{
 
-    var userUIDS=""
+    var userUIDS="juriusu25@gmail.com"
+
 }
 
     private val TAG = "LoginActivity"
@@ -29,7 +31,7 @@ companion object{
 
    //     startActivity(Intent(this,InitializeCategory::class.java))
 
-        startActivity(Intent(this,Business_PromoProfile::class.java))
+        startActivity(Intent(this, Business_PromoProfile::class.java))
 
       //  startActivity(Intent(this,DashboardActivity::class.java))
 loginEmail.setText("juriusu25@gmail.com")
@@ -58,8 +60,9 @@ loginPassword.setText("febuary25")
                             loginProgressBar.visibility = View.INVISIBLE
 
                             if (task.isSuccessful){
+                                userUIDS = LoginEmail
                                 Toast.makeText(this,"Login Successful!", Toast.LENGTH_SHORT).show()
-                                getUserUID(LoginEmail)
+                            //    getUserUID(LoginEmail)
                                 val intent = Intent(this, DashboardActivity::class.java)
                                 startActivity(intent)
                             } else {
@@ -87,7 +90,7 @@ loginPassword.setText("febuary25")
 
                 if (document.exists()) {
                     Log.d(TAG, "documenet exist"+document.getString("userUID"))
-                    userUIDS=document.getString("userUID")!!
+              //      userUIDS=document.getString("userUID")!!
                 } else {
                     Log.d(TAG, "No such document")
                 }

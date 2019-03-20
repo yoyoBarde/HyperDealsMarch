@@ -1,4 +1,4 @@
-package com.example.kent.hyperdeals.MyAdapters
+package com.example.kent.hyperdeals.Model
 
 import android.graphics.Bitmap
 import android.os.Parcel
@@ -26,6 +26,18 @@ class    PromoModel() : Parcelable{
         var distance: String =""
         lateinit var promoImageBitmap: Bitmap
 
+        var startDateYear:Int = 0
+        var startDateMonth:Int = 0
+        var startDateDay:Int = 0
+        var endDateYear:Int = 0
+        var endDateMonth:Int = 0
+        var endDateDay:Int = 0
+        var startTimeHour:Int = 0
+        var startTimeMinute:Int = 0
+        var endTimeHour:Int = 0
+        var endTimeMinute:Int = 0
+
+
 
         constructor(parcel: Parcel) : this() {
                 promoimage = parcel.readString()
@@ -43,6 +55,17 @@ class    PromoModel() : Parcelable{
                 interested = parcel.readInt()
                 dismissed = parcel.readInt()
                 distance = parcel.readString()
+
+                 startDateYear = parcel.readInt()
+                 startDateMonth = parcel.readInt()
+                 startDateDay = parcel.readInt()
+                 endDateYear = parcel.readInt()
+                 endDateMonth = parcel.readInt()
+                 endDateDay = parcel.readInt()
+                 startTimeHour = parcel.readInt()
+                 startTimeMinute = parcel.readInt()
+                 endTimeHour = parcel.readInt()
+                 endTimeMinute = parcel.readInt()
         }
 
         override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -62,6 +85,16 @@ class    PromoModel() : Parcelable{
                 parcel.writeInt(dismissed)
                 parcel.writeString(distance)
 
+                parcel.writeInt(startDateYear)
+                parcel.writeInt(startDateMonth)
+                parcel.writeInt(startDateDay)
+                parcel.writeInt(endDateYear)
+                parcel.writeInt(endDateMonth)
+                parcel.writeInt(endDateDay)
+                parcel.writeInt(startTimeHour)
+                parcel.writeInt(startTimeMinute)
+                parcel.writeInt(endTimeHour)
+                parcel.writeInt(endTimeMinute)
         }
 
         override fun describeContents(): Int {

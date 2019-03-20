@@ -29,9 +29,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
 import com.example.kent.hyperdeals.*
-import com.example.kent.hyperdeals.MyAdapters.PromoModel
+import com.example.kent.hyperdeals.FragmentsBusiness.Business_PromoProfile
+import com.example.kent.hyperdeals.Model.PromoModel
 import com.example.kent.hyperdeals.MyAdapters.PromoModelBusinessman
 import com.example.kent.hyperdeals.Home.HomeAdapter
+import com.example.kent.hyperdeals.MyAdapters.PromoListAdapter
 import com.firebase.geofire.GeoFire
 import com.firebase.geofire.GeoLocation
 import com.firebase.geofire.GeoQueryEventListener
@@ -41,6 +43,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.dialogbox.*
 import kotlinx.android.synthetic.main.fragmentcategory.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.support.v4.toast
@@ -106,12 +110,13 @@ doAsync {
                 upload.promoLocation= LatLng(geoPoint.latitude,geoPoint.longitude)
               //  upload.promoImageBitmap =  UrltoBitmap(upload.promoImageLink)
            promolist.add(upload)
-                Log.e(TAG,"Location of the fcking user "+upload.promoLocation.latitude.toString()+upload.promoLocation.longitude.toString())
+              //  Log.e(TAG,"Location of the fcking user "+upload.promoLocation.latitude.toString()+upload.promoLocation.longitude.toString())
 
                 Log.e(TAG,promolist.toString())
 
             }
-            getLocation()
+            detectGeofence(GeoLocation(10.2330021,123.7680741))
+
 
 
 
@@ -150,14 +155,11 @@ doAsync {
 
 
                 detectGeofence(GeoLocation(location.latitude,location.longitude))
-
+Log.e(TAG,"location change ${location.latitude} ${location.longitude}")
                 try {
                 for(i in 0 until  promolist.size){
-
-
                     var distanceFormatted = String.format("%.2f",CalculationByDistance(userLatLng,promolist[i].promoLocation))
                   promolist[i].distance = distanceFormatted
-
 
                 }
 
@@ -207,7 +209,6 @@ runOnUiThread {
             }
             locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, locationListener)
             locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, locationListener)
-
             // locationManager.!!requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0f,);
 
         } else {
@@ -238,63 +239,79 @@ runOnUiThread {
     }
 
     fun detectGeofence(userGeo:GeoLocation) {
+        Log.e(TAG,"onDetect Entered")
+        for(i in 0 until promolist.size) {
+            var distance = CalculationByDistance(LatLng(userGeo.latitude, userGeo.longitude), LatLng(promolist[i].promoLocation.latitude, promolist[i].promoLocation.longitude))
 
-        val geoQuery = geoFire.queryAtLocation(userGeo, 20.0)
-        geoQuery.addGeoQueryEventListener(object : GeoQueryEventListener {
-            override fun onKeyEntered(key: String, location: GeoLocation) {
+            Log.e(TAG, distance.toInt().toString())
+            if (distance.toInt() < 1) {
+                Log.e(TAG, "truethat")
+                Log.e(TAG, promolist[i].promoImageLink)
+               // displayNotification(promolist[i].promoStore,i,promolist[i])
+                loadImage(promolist[i])
 
-                if(!notificationList.contains(key)) {
-                    notificationList.add(key)
-                    Log.e(TAG, key)
-                    notifIDCounter += 1
-
-                    for(i in 0 until promolist.size) {
-                        if(promolist[i].promoStore.matches(key.toRegex())){
-
-                            doAsync {
-                                try {
-                                    var srt = java.net.URL(promolist[i].promoImageLink).openStream()
-                                    var bitmap = BitmapFactory.decodeStream(srt)
-                                    Log.e(TAG, "GAGO " + bitmap.toString())
-                                    promolist[i].promoImageBitmap = bitmap
-
-                                   uiThread {
-                                       displayNotification(key, notifIDCounter, promolist[i])
-                                   }
-                                    Log.e(TAG, "Ngeek")
-
-                                } catch (e: Exception) {
-                                    uiThread {
-                                        displayNotification(key, notifIDCounter, promolist[i])
-                                    }
-                                    Log.e(TAG, "walakadetect")
-                                }
-
-                            }
-
-
-                        Log.e(TAG,"matched "+key)
-
-                        }
-                    }
-
-                }
-
-
+                Log.e(TAG, "pisti bogo")
             }
 
-            override fun onKeyExited(key: String) {}
 
-            override fun onKeyMoved(key: String, location: GeoLocation) {}
-
-            override fun onGeoQueryReady() {
-
-            }
-
-            override fun onGeoQueryError(error: DatabaseError) {
-                Log.d("ERROR", "" + error)
-            }
-        })
+        }
+//
+//        val geoQuery = geoFire.queryAtLocation(userGeo, .5)
+//        geoQuery.addGeoQueryEventListener(object : GeoQueryEventListener {
+//            override fun onKeyEntered(key: String, location: GeoLocation) {
+//Log.e(TAG,"onKey Entered")
+//                if(!notificationList.contains(key)) {
+//                    notificationList.add(key)
+//                    Log.e(TAG, key)
+//                    notifIDCounter += 1
+//
+//                    for(i in 0 until promolist.size) {
+//                        if(promolist[i].promoStore.matches(key.toRegex())){
+//
+//                            doAsync {
+//                                try {
+//                                    var srt = java.net.URL(promolist[i].promoImageLink).openStream()
+//                                    var bitmap = BitmapFactory.decodeStream(srt)
+//                                    Log.e(TAG, "GAGO " + bitmap.toString())
+//                                    promolist[i].promoImageBitmap = bitmap
+//
+//                                   uiThread {
+//                                       displayNotification(key, notifIDCounter, promolist[i])
+//                                   }
+//                                    Log.e(TAG, "Ngeek")
+//
+//                                } catch (e: Exception) {
+//                                    uiThread {
+//                                        displayNotification(key, notifIDCounter, promolist[i])
+//                                    }
+//                                    Log.e(TAG, "walakadetect")
+//                                }
+//
+//                            }
+//
+//
+//                        Log.e(TAG,"matched "+key)
+//
+//                        }
+//                    }
+//
+//                }
+//
+//
+//            }
+//
+//            override fun onKeyExited(key: String) {}
+//
+//            override fun onKeyMoved(key: String, location: GeoLocation) {}
+//
+//            override fun onGeoQueryReady() {
+//
+//            }
+//
+//            override fun onGeoQueryError(error: DatabaseError) {
+//                Log.d("ERROR", "" + error)
+//            }
+//        })
     }
 
 
@@ -324,18 +341,43 @@ runOnUiThread {
         return Radius * c
     }
 
+fun loadImage(myPromoModel: PromoModel){
 
-    fun displayNotification(Channel: String, notificationID: Int,myPromoModel:PromoModel) {
+                            doAsync {
+                                try {
+                                    var srt = java.net.URL(myPromoModel.promoImageLink).openStream()
+                                    var bitmap = BitmapFactory.decodeStream(srt)
+                                    Log.e(TAG, "GAGO " + bitmap.toString())
+                                    myPromoModel.promoImageBitmap = bitmap
+
+                                       displayNotification(myPromoModel.promoStore, notifIDCounter,myPromoModel)
+                                    Log.e(TAG, "Ngeek")
+
+                                } catch (e: Exception) {
+                                        displayNotification(myPromoModel.promoStore, notifIDCounter, myPromoModel)
+
+                                    Log.e(TAG, "walakadetect")
+                                }
+
+                            }
+
+
+}
+    fun displayNotification(Channel: String, notificationID: Int,myPromoModel: PromoModel) {
 var rand =  Random()
 var n = rand.nextInt(1000)
         var NotifcationID2 = Channel.length + n
+
+
+        PromoListAdapter.promoProfile = myPromoModel
         Log.e("Notification test", "Succeed")
 
-        var resultIntent = Intent(activity!!,Business_PromoProfile::class.java)
+        var resultIntent = Intent(activity!!, Business_PromoProfile::class.java)
 
-        var actionIntent = Intent(activity!!,NotificationReceiver::class.java)
+        var actionIntent = Intent(activity!!,Business_PromoProfile::class.java)
         val actionPendingIntent: PendingIntent = PendingIntent.getActivity(activity!!, NotifcationID2, actionIntent
                 .putExtra("key",Channel)
+                .putExtra("object",myPromoModel)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),0)
 
 
@@ -348,14 +390,19 @@ var n = rand.nextInt(1000)
                 val resultPendingIntent = PendingIntent.getActivity(activity!!, NotifcationID2, resultIntent
                         .putExtra("key", Channel)
                         .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),0)
+
 try {
 
     expanded_layout.setImageViewBitmap(R.id.iv_notifpromoimage, myPromoModel.promoImageBitmap)
+
+
 }
         catch (e:Exception){
 
             print(e)
         }
+
+
      createNotificationChannel(Channel)
 
         val builder = NotificationCompat.Builder(activity!!, Channel)
@@ -364,14 +411,20 @@ try {
         builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
         builder.setCustomContentView(normal_layout)
         builder.setCustomBigContentView(expanded_layout)
-        builder.setContentIntent(resultPendingIntent)
+        builder.setContentIntent(actionPendingIntent)
         builder.color = Color.BLUE
         builder.setOnlyAlertOnce(true)
+
+
+
         builder.addAction(R.drawable.hyperdealslogofinal,"Interested",actionPendingIntent)
+
         builder.addAction(R.drawable.hyperdealslogofinal,"Dismiss",actionPendingIntent)
+
         builder.setAutoCancel(true)
         val notificationManagerCompat = NotificationManagerCompat.from(activity!!)
         notificationManagerCompat.notify(NotifcationID2, builder.build())
+
 
     }
 

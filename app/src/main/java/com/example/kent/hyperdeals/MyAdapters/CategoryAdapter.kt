@@ -69,6 +69,7 @@ class CategoryAdapter (var context: Context,  var categoryList : ArrayList<Categ
         var myProfileImage = view.profile_image!!
         var cardView = view.cardview!!
         var categoryCheckbox = view.checkBox_Category!!
+
     }
 
 

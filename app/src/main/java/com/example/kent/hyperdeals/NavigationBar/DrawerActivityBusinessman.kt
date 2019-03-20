@@ -37,7 +37,7 @@ class DrawerActivityBusinessman : AppCompatActivity(), NavigationView.OnNavigati
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.businessman_activity_drawer)
-
+        MainActivity.userLog = false
         setSupportActionBar(toolbar1)
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
        containerbm.adapter = mSectionsPagerAdapter

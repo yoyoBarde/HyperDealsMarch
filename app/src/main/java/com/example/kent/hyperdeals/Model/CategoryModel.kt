@@ -23,44 +23,6 @@ data class SubcategoryModelx(
 
 )
 
-
- class SubcategoryParse():Parcelable{
-
-    var itemSelected = false
-    var SubcategoryName = " "
-
-     constructor(parcel: Parcel) : this() {
-         itemSelected = parcel.readByte() != 0.toByte()
-         SubcategoryName = parcel.readString()
-     }
-
-     override fun writeToParcel(parcel: Parcel, flags: Int) {
-         parcel.writeByte(if (itemSelected) 1 else 0)
-         parcel.writeString(SubcategoryName)
-     }
-
-     override fun describeContents(): Int {
-         return 0
-     }
-
-     companion object CREATOR : Parcelable.Creator<SubcategoryParse> {
-         override fun createFromParcel(parcel: Parcel): SubcategoryParse {
-             return SubcategoryParse(parcel)
-         }
-
-         override fun newArray(size: Int): Array<SubcategoryParse?> {
-             return arrayOfNulls(size)
-         }
-     }
-
- }
-
-
-
-
-
-
-
 class CategoryParse():Parcelable{
 
     var SelectedAll = false
@@ -98,6 +60,44 @@ class CategoryParse():Parcelable{
 
 
 }
+
+ class SubcategoryParse():Parcelable{
+
+    var Selected = false
+    var SubcategoryName = " "
+
+     constructor(parcel: Parcel) : this() {
+         Selected = parcel.readByte() != 0.toByte()
+         SubcategoryName = parcel.readString()
+     }
+
+     override fun writeToParcel(parcel: Parcel, flags: Int) {
+         parcel.writeByte(if (Selected) 1 else 0)
+         parcel.writeString(SubcategoryName)
+     }
+
+     override fun describeContents(): Int {
+         return 0
+     }
+
+     companion object CREATOR : Parcelable.Creator<SubcategoryParse> {
+         override fun createFromParcel(parcel: Parcel): SubcategoryParse {
+             return SubcategoryParse(parcel)
+         }
+
+         override fun newArray(size: Int): Array<SubcategoryParse?> {
+             return arrayOfNulls(size)
+         }
+     }
+
+ }
+
+
+
+
+
+
+
 
 
 

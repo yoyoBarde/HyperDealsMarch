@@ -7,6 +7,9 @@ import android.content.Intent
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.StaggeredGridLayoutManager
 import com.example.kent.hyperdeals.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.zaddpromobusinessman.*
@@ -32,19 +35,21 @@ import com.example.kent.hyperdeals.FragmentActivities.DialogFragmentAddCategoryB
 import com.example.kent.hyperdeals.Model.CategoryParse
 import com.example.kent.hyperdeals.Model.SubcategoryParse
 import com.example.kent.hyperdeals.MyAdapters.CategoryAdapterBusiness
-import com.example.kent.hyperdeals.myInterfaces
-import com.example.kent.hyperdeals.promoSubcategory
+import com.example.kent.hyperdeals.MyAdapters.SelectedSubcategoryAdapterBusiness
+import com.example.kent.hyperdeals.Model.myInterfaces
 import org.jetbrains.anko.doAsync
 import java.text.SimpleDateFormat
 import kotlin.collections.ArrayList
 
 
-class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePickerDialog.OnTimeSetListener,myInterfaces {
+class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePickerDialog.OnTimeSetListener, myInterfaces {
 
 
     companion object {
-       var globalCategorylist=ArrayList<CategoryParse>()
+        lateinit var recyclerViewSub:RecyclerView
+        var globalCategorylist=ArrayList<CategoryParse>()
     }
+    lateinit var subcategoryList:ArrayList<String>
     var globalSubcategoryStringList = ArrayList<String>()
     val database = FirebaseFirestore.getInstance()
     private var mImageLink : UploadTask.TaskSnapshot?=null
@@ -83,7 +88,6 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
 
     lateinit var newFragment:DialogFragmentAddCategoryBusiness
 
-
     private var mStorage: FirebaseStorage?=null
     private var mStorageReference : StorageReference?=null
     private var mFirebaseFirestore = FirebaseFirestore.getInstance()
@@ -93,9 +97,11 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
         setContentView(R.layout.zaddpromobusinessman)
         newFragment = DialogFragmentAddCategoryBusiness().newInstance()
         getCategories()
-        // = findViewById(R.id.startDate)
-
-
+        recyclerViewSub = findViewById<RecyclerView>(R.id.Recycler_selectedSubcategory)
+        var  selectedSubAdapter = SelectedSubcategoryAdapterBusiness(this, arrayListOf(""))
+        var myStagger = StaggeredGridLayoutManager(3, LinearLayoutManager.HORIZONTAL)
+        recyclerViewSub.layoutManager = myStagger
+        recyclerViewSub.adapter = selectedSubAdapter
 
         addPromoImage.setOnClickListener{
             val intent = Intent()
@@ -105,9 +111,9 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
         }
 
         addPromoPublish.setOnClickListener{
-            storeDatatoFirestore()
 
-        finish()
+            uploadFile()
+
 
         }
 
@@ -116,10 +122,7 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
 
         }
 
-        set.setOnClickListener{
-            uploadFile()
 
-        }
 
         val autocompleteFragment = fragmentManager.findFragmentById(R.id.place_autocomplete_fragment) as PlaceAutocompleteFragment
 
@@ -135,8 +138,7 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
                 addPromoLocation.setText(getPlaceName)
 
                 addPromoPlace.setText(getlat + "," + getlong)
-            myGeolocation = GeoLocation(place.latLng.latitude,place.latLng.longitude)
-                toast("Success")
+                myGeolocation = GeoLocation(place.latLng.latitude,place.latLng.longitude)
             }
 
             override fun onError(status: Status) {
@@ -188,7 +190,7 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
 
             selectedEndorStart = 4
             var myTimepicker =  TimePickerDialog(this,this,11,11,DateFormat.is24HourFormat(this))
-        myTimepicker.show()
+            myTimepicker.show()
         }
 
     }
@@ -215,7 +217,7 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
 
             }
             else
-            startDate.text = dateFormat.format(myDate)
+                startDate.text = dateFormat.format(myDate)
 
         }
         else if (selectedEndorStart == 2){
@@ -228,7 +230,7 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
             if(startDateCalendar!!.timeInMillis>endDateCalendar!!.timeInMillis){
                 Toast.makeText(this,"End Date should be further than Start Date",Toast.LENGTH_LONG).show()
             }
-else {
+            else {
                 endDate.text = dateFormat.format(myDate)
             }
         }
@@ -238,25 +240,25 @@ else {
     override fun onTimeSet(p0: TimePicker?, p1: Int, p2: Int) {
         var amorpm = "am"
 
-            if(selectedEndorStart==3){
-                startTimeHour = p1
-                startTimeMinute = p2
-                if(p1==0)
-                    p1 -1
-                if(p1>12) {
-                    amorpm = "pm"
-                    p1 - 12
+        if(selectedEndorStart==3){
+            startTimeHour = p1
+            startTimeMinute = p2
+            if(p1==0)
+                p1 -1
+            if(p1>12) {
+                amorpm = "pm"
+                p1 - 12
 
-                }
-           startTime.text = "$p1:$p2 $amorpm"
+            }
+            startTime.text = "$p1:$p2 $amorpm"
 
         }
         else if (selectedEndorStart==4)
-           {
-                endTimeHour = p1
-                endTimeMinute = p2
-                endTime.text = "$p1:$p2 $amorpm"
-            }
+        {
+            endTimeHour = p1
+            endTimeMinute = p2
+            endTime.text = "$p1:$p2 $amorpm"
+        }
 
     }
 
@@ -284,18 +286,19 @@ else {
         mStorageReference = mStorage!!.reference
 
         if (imageUri!=null){
-           val ref = mStorageReference!!.child("images/" + UUID.randomUUID().toString())
+            val ref = mStorageReference!!.child("images/" + UUID.randomUUID().toString())
             ref.putFile(imageUri!!)
                     .addOnSuccessListener {
 
-                            addPromoProgressBar.visibility = View.VISIBLE
+                        addPromoProgressBar.visibility = View.VISIBLE
 
                         val image = it.downloadUrl.toString()
 
                         addPromoImageLink.setText(image)
 
                         toast("Image Uploaded Successfully")
-
+                        storeDatatoFirestore()
+                finish()
                         addPromoProgressBar.visibility = View.INVISIBLE
 
                     }
@@ -309,7 +312,7 @@ else {
 
 
     }
-private fun addGeofence(key:String,location:GeoLocation){
+    private fun addGeofence(key:String,location:GeoLocation){
         geoFire.setLocation(key,location, GeoFire.CompletionListener { key, error ->
 
             Log.d("HyperDeals",key)
@@ -318,45 +321,48 @@ private fun addGeofence(key:String,location:GeoLocation){
         })
 
 
-}
+    }
     override fun saveCategoriesBusiness(myCategoryList: ArrayList<CategoryParse>) {
+
+
         globalCategorylist = myCategoryList
-doAsync {
-    Log.e(TAG, "saveCategoriesBusiness")
-    var subcategoryList = ArrayList<String>()
-    for (i in 0 until myCategoryList.size) {
-        Log.e(TAG, "loop1")
 
-        for (j in 0 until myCategoryList[i].Subcategories.size) {
-            Log.e(TAG, "loop2")
-            if (myCategoryList[i].Subcategories[j].itemSelected) {
-                subcategoryList.add(myCategoryList[i].Subcategories[j].SubcategoryName)
+            Log.e(TAG, "saveCategoriesBusiness")
+         subcategoryList = ArrayList<String>()
+            for (i in 0 until myCategoryList.size) {
+                Log.e(TAG, "loop1")
+
+                for (j in 0 until myCategoryList[i].Subcategories.size) {
+                    Log.e(TAG, "loop2")
+                    if (myCategoryList[i].Subcategories[j].Selected) {
+                        subcategoryList.add(myCategoryList[i].Subcategories[j].SubcategoryName)
+                    }
+                }
+
+
             }
-        }
+            globalSubcategoryStringList = subcategoryList
+            for (k in 0 until subcategoryList.size) {
 
+                Log.e(TAG, "selected - " + subcategoryList[k])
+            }
+setAdapter(subcategoryList)
 
-    }
-globalSubcategoryStringList = subcategoryList
-    for (k in 0 until subcategoryList.size) {
-
-        Log.e(TAG, "selected - " + subcategoryList[k])
-    }
-}
 
     }
 
     private fun storeDatatoFirestore(){
-        doAsync {
-            for(i in 0 until globalSubcategoryStringList.size){
+//        doAsync {
+//            for(i in 0 until globalSubcategoryStringList.size){
+//
+//                pushtoDataBsae(promoSubcategory(globalSubcategoryStringList[i]))
+//
+//
+//            }
+//
+//        }
 
-                    pushtoDataBsae(promoSubcategory(globalSubcategoryStringList[i]))
 
-
-            }
-
-        }
-
-        val place:Place?=null
 
         addPromoProgressBar.visibility = View.VISIBLE
         Log.d("HyperDeals",subsubTag.text.toString())
@@ -367,12 +373,11 @@ globalSubcategoryStringList = subcategoryList
         val pLatLng = addPromoPlace.text.toString()
         val pPromoPlace = addPromoLocation.text.toString()
         val pPromoImageLink = addPromoImageLink.text.toString()
+Log.e(TAG,"$pName $pStore $pContact")
 
-
-
-        val pEntity = PromoModelBusinessman(downloadImageLink().toString(),pStore,pContact,pDescription,pPromoPlace,pName,pLatLng,pPromoImageLink,
+        val pEntity = PromoModelBusinessman("asdasd",pStore,pContact,pDescription,pPromoPlace,pName,pLatLng,pPromoImageLink,
                 GeoPoint(myGeolocation.latitude,myGeolocation.longitude),subsubTag.text.toString(),0,0,0,0
-        ,startDateYear!!
+                ,startDateYear!!
                 ,startDateMonth!!
                 ,startDateDay!!
                 ,endDateYear!!
@@ -384,13 +389,10 @@ globalSubcategoryStringList = subcategoryList
                 ,endTimeMinute!!
 
         )
-
-
+        pushtoDataBsae(pStore)
 
         mFirebaseFirestore.collection("PromoDetails").document(pStore).set(pEntity)
-
         toast("Success")
-
         addPromoProgressBar.visibility = View.INVISIBLE
         Log.d("HyperDeals",myGeolocation.latitude.toString()+myGeolocation.longitude.toString())
         addGeofence(pStore,myGeolocation)
@@ -398,16 +400,16 @@ globalSubcategoryStringList = subcategoryList
     }
 
     private fun downloadImageLink(){
-            mStorageReference!!.child("images/").downloadUrl.addOnSuccessListener {
+        mStorageReference!!.child("images/").downloadUrl.addOnSuccessListener {
 
 
-                mImageLink!!.downloadUrl
+            mImageLink!!.downloadUrl
 
-                addPromoImageLink.setText(mImageLink.toString())
+            addPromoImageLink.setText(mImageLink.toString())
 
             toast("Nice")
 
-            }
+        }
 
 
 
@@ -449,7 +451,7 @@ globalSubcategoryStringList = subcategoryList
 //                        doAsync {
 //                            for (j in 0 until categoryList[i].Subcategories.size){
 //                                doAsync {
-//                                    categoryList[i].Subcategories[j].itemSelected = true
+//                                    categoryList[i].Subcategories[j].Selected = true
 //                                }
 //                            }
 //
@@ -471,32 +473,52 @@ globalSubcategoryStringList = subcategoryList
         }
 
     }
-    fun pushtoDataBsae(myPromoSub: promoSubcategory){
-        doAsync {
-        mFirebaseFirestore.collection("PromoCategories").document(addPromoStore.text.toString()).collection("Subcategories").document(myPromoSub.subcategoryName).set(myPromoSub)
+    fun setAdapter(myList:ArrayList<String>){
+        var  selectedSubAdapter = SelectedSubcategoryAdapterBusiness(this,subcategoryList)
+
+Log.e(TAG,"${myList.size}")
+
+
+        var myStagger = StaggeredGridLayoutManager(3, LinearLayoutManager.HORIZONTAL)
+        recyclerViewSub.layoutManager = myStagger
+            recyclerViewSub.adapter = selectedSubAdapter
+    }
+    fun pushtoDataBsae(PromoStore:String){
+var myArrayStringSub = ArrayList<String>()
+Log.e(TAG,"pushtoDataBase   $PromoStore   ${CategoryAdapterBusiness.globalCategoryList.size}  ")
+        for(i in 0 until CategoryAdapterBusiness.globalCategoryList.size) {
+            for (j in 0 until CategoryAdapterBusiness.globalCategoryList[i].Subcategories.size){
+                if(CategoryAdapterBusiness.globalCategoryList[i].Subcategories[j].Selected){
+                    myArrayStringSub.add(CategoryAdapterBusiness.globalCategoryList[i].Subcategories[j].SubcategoryName)
+                }
+
+            }
+
+        }
+
+
+
+        Log.e(TAG,"time for push ${myArrayStringSub.size}")
+        for(k in 0 until myArrayStringSub.size){
+            doAsync {
+                val Subcategory = HashMap<String, Any>()
+                Subcategory["SubcategoryName"] = myArrayStringSub[k]
+
+
+                mFirebaseFirestore.collection("PromoCategories").document(PromoStore).collection("Subcategories")
+                        .document().set(Subcategory)
+                        .addOnSuccessListener { Log.e(TAG, "DocumentSnapshot successfully written!") }
+                        .addOnFailureListener { e -> Log.e(TAG, "Error  writing document", e) }
+            }
+
         }
     }
     private fun showDialog() {
 
-       var myDialog = DialogFragmentAddCategoryBusiness()
+        var myDialog = DialogFragmentAddCategoryBusiness()
 
         myDialog.show(fragmentManager,"myCustomDialog")
     }
 }
-
-
-/*     val autocompleteFragment = fragmentManager.findFragmentById(R.id.place_autocomplete_fragment) as PlaceAutocompleteFragment
-
-     autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-         override fun onPlaceSelected(place: Place) {
-             toast("Success")
-         }
-
-         override fun onError(status: Status) {
-             toast("Error")
-         }
-     })
-
-*/
 
 

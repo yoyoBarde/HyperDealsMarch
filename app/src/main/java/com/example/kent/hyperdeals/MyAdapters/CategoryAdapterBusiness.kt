@@ -35,9 +35,13 @@ globalCategoryList = categoryList
 
         val myCategory = categoryList[position]
         mySubcatAdapter = SubcategoryAdapterBusiness(context,myCategory.Subcategories,position)
+
+
         var myStagger = StaggeredGridLayoutManager(3,LinearLayoutManager.HORIZONTAL)
         holder.recyclerViewHeadd.layoutManager = myStagger
         holder.recyclerViewHeadd.adapter =  mySubcatAdapter
+
+
         holder.head_category.text = myCategory.categoryName
 
 
@@ -61,9 +65,6 @@ globalCategoryList = categoryList
 
 
     }
-
-
-
 
     inner class ViewHolder(view: View): RecyclerView.ViewHolder(view){
         val head_category = view.tv_head_category!!

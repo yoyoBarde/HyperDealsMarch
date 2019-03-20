@@ -15,19 +15,25 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import com.example.kent.hyperdeals.FragmentsBusiness.Business_PromoProfile
 import com.example.kent.hyperdeals.MyAdapters.PromoListAdapter
-import com.example.kent.hyperdeals.MyAdapters.PromoModel
+import com.example.kent.hyperdeals.Model.PromoModel
 import com.example.kent.hyperdeals.MyAdapters.PromoModelBusinessman
 
 import com.example.kent.hyperdeals.Interface.RecyclerTouchListener
+import com.example.kent.hyperdeals.LoginActivity
+import com.example.kent.hyperdeals.Model.*
 import com.example.kent.hyperdeals.R
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.Transaction
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.dialogbox.*
 import kotlinx.android.synthetic.main.fragmentpromaplist.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.support.v4.toast
+import org.jetbrains.anko.uiThread
+import java.text.SimpleDateFormat
+import java.util.*
 
 class FragmentProMapList: Fragment() {
 
@@ -78,7 +84,7 @@ class FragmentProMapList: Fragment() {
                     promolist.add(upload)
                     toast("success")
 
-                    mAdapter = PromoListAdapter(mSelected, promolist)
+                    mAdapter = PromoListAdapter(activity!!,mSelected, promolist)
                     recyclerViewProMapList.adapter = mAdapter
 
                 }
@@ -91,7 +97,73 @@ class FragmentProMapList: Fragment() {
         val db: FirebaseFirestore = FirebaseFirestore.getInstance()
         var documentReference: DocumentReference = db.collection("EmailUID").document(email)
         for ()*/
+fun incrementPromos(myModel: PromoModel){
 
+          var  dateFormat = SimpleDateFormat("dd/yyyy")
+          Log.e(TAG," current date $ ${dateFormat.format(Calendar.getInstance().time)}")
+          database.collection("PromoViews").document(myModel.promoStore).collection("UserViews").document(LoginActivity.userUIDS).get().addOnSuccessListener {
+              document ->
+              if(document.exists()){
+                  var userViewParce = document.toObject(userPromoViewsParce::class.java)
+
+                  if(userViewParce.date.equals(dateFormat.format(Calendar.getInstance().time))){
+                      Log.e(TAG,"dateMatched no Action")
+                  }
+                  else {
+                      doAsync {
+
+                          database.collection("PromoViews").document(myModel.promoStore).collection("UserViews").document(LoginActivity.userUIDS)
+                                  .set(userPromoViews(dateFormat.format(Calendar.getInstance().time)))
+                          var mPromoViews = promoViewsParde()
+
+                          database.collection("PromoViews").document(myModel.promoStore)
+                                  .get().addOnSuccessListener { document ->
+
+                                      if (document.exists()) {
+                                          mPromoViews = document.toObject(promoViewsParde::class.java)
+                                          Log.e(TAG, "promo views get ${mPromoViews.promoViews}")
+                                          var fPromoViews = promoViews(mPromoViews.promoViews + 1)
+                                          database.collection("PromoViews").document(myModel.promoStore).set(fPromoViews)
+                                      }
+                                      else{
+                                          var fPromoViews = promoViews(mPromoViews.promoViews + 1)
+                                          database.collection("PromoViews").document(myModel.promoStore).set(fPromoViews)
+                                      }
+                                  }
+
+
+                      }
+                  }
+
+              }
+              else{
+                  doAsync {
+                      database.collection("PromoViews").document(myModel.promoStore).collection("UserViews").document(LoginActivity.userUIDS)
+                              .set(userPromoViews(dateFormat.format(Calendar.getInstance().time)))
+                      var mPromoViews = promoViewsParde()
+                      database.collection("PromoViews").document(myModel.promoStore)
+                              .get().addOnSuccessListener { document ->
+
+                                  if (document.exists()) {
+                                      mPromoViews = document.toObject(promoViewsParde::class.java)
+                                      Log.e(TAG, "promo views get ${mPromoViews.promoViews}")
+                                      var fPromoViews = promoViews(mPromoViews.promoViews + 1)
+                                      database.collection("PromoViews").document(myModel.promoStore).set(fPromoViews)
+                                  }
+                                  else{
+                                      var fPromoViews = promoViews(mPromoViews.promoViews + 1)
+                                      database.collection("PromoViews").document(myModel.promoStore).set(fPromoViews)
+                                  }
+                              }
+
+
+                  }
+              }
+
+          }
+
+
+      }
         recyclerViewProMapList.addOnItemTouchListener(RecyclerTouchListener(this.context!!.applicationContext, object : RecyclerTouchListener.ClickListener {
             override fun onClick(view: View, position: Int) {
 
@@ -153,6 +225,26 @@ class FragmentProMapList: Fragment() {
                         .placeholder(R.mipmap.ic_launcher)
                         .into(myDialog!!.promoPicture)
 
+                myDialog!!.specificPromoContainer.setOnClickListener {
+                incrementPromos(promolist[position])
+
+
+
+
+
+
+                        myDialog!!.dismiss()
+                    val intent = Intent(activity!!, Business_PromoProfile::class.java)
+                    PromoListAdapter.promoProfile = promolist[position]
+                            startActivity(intent)
+
+
+
+                }
+
+
+
+
 
                 myDialog!!.promoNAME.text = promolist[position].promoname
                 myDialog!!.promoDESCRIPTION.text = promolist[position].promodescription
@@ -160,7 +252,61 @@ class FragmentProMapList: Fragment() {
                 myDialog!!.promoNUMBER.text = promolist[position].promoContactNumber
                 myDialog!!.promoSTORE.text = promolist[position].promoStore
 
-            //Inflating of images in Dialog builder: Work in Progress Kent
+var likeRetrieved = false
+                database.collection("PromoIntrested").document(promolist[position].promoStore).
+                        collection("interested_users").document(LoginActivity.userUIDS).get().addOnSuccessListener { document -> Log.e(TAG,"Naa")
+
+                    if(document.exists())
+                    {
+
+                        var userLikeParce = document.toObject(userLikeParce::class.java)
+                        likeRetrieved =true
+
+                        myDialog!!.interested.setImageResource(R.drawable.ic_liked_k)
+                    }
+                    else{
+                        Log.e(TAG,"dont exist")
+                        likeRetrieved =false
+
+                    }
+
+                }.addOnFailureListener {
+
+                    Log.e(TAG,"WALA")
+                }
+                myDialog!!.interested.setOnClickListener {
+                    doAsync {
+
+
+                        if (!likeRetrieved) {
+                            uiThread {     myDialog!!.interested.setImageResource(R.drawable.ic_liked_k)}
+                            var myUserLike = userLike(LoginActivity.userUIDS, true)
+                            database.collection("PromoIntrested").document(promolist[position].promoStore).collection("interested_users").document(LoginActivity.userUIDS).set(myUserLike).addOnCompleteListener {
+                                Log.e(TAG, "liked")
+                                likeRetrieved = true
+                                database.collection("UserLikes").document(LoginActivity.userUIDS).collection("Promo").document(promolist[position].promoStore).set(userPromoiked(promolist[position].promoStore))
+
+                            }
+
+                        } else {
+                            uiThread {   myDialog!!.interested.setImageResource(R.drawable.interested)}
+                            database.collection("PromoIntrested").document(promolist[position].promoStore).collection("interested_users").document(LoginActivity.userUIDS).delete().addOnCompleteListener {
+                                Log.e(TAG, "deleted")
+                                likeRetrieved = false
+                                    database.collection("UserLikes").document(LoginActivity.userUIDS).collection("Promo").document(promolist[position].promoStore).delete()
+
+                            }
+
+
+                        }
+
+                    }
+
+
+
+                }
+
+                //Inflating of images in Dialog builder: Work in Progress Kent
 
            /*   myDialog!!.promoPicture.set(promolist[position].promoImageLink)*/
 
@@ -182,32 +328,7 @@ class FragmentProMapList: Fragment() {
                         startActivity(mapIntent)
                     }
 
-                        myDialog?.interested?.setOnClickListener {
-                            Toast.makeText(activity, "Thank you for your feedback.", Toast.LENGTH_SHORT).show()
 
-
-                            db.runTransaction({
-                                val snapshot = it.get(promoDetailsReference)
-                                val updatedView = snapshot.getDouble(KEY_INTERESTED) + 5
-                                it.update(promoDetailsReference,KEY_INTERESTED,updatedView)
-
-
-                            }).addOnSuccessListener {
-                                toast("Nice")
-
-//  interested!!.visibility = View.GONE
-
-
-                            }.addOnFailureListener{
-                                toast("Failed")
-                            }
-
-
-                        /* mFirebaseFirestore.collection("Reach").document().set(reach.interested + 10) */
-
-                            myDialog?.dismiss()
-
-                        }
 
                             myDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                             myDialog?.window?.setGravity(Gravity.CENTER)

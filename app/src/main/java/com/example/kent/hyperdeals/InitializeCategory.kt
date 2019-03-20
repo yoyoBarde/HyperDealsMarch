@@ -9,7 +9,6 @@ import com.example.kent.hyperdeals.MyAdapters.CategoryAdapter
 import com.example.kent.hyperdeals.Model.*
 
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_initialize_category.*
 import org.jetbrains.anko.doAsync
@@ -67,7 +66,7 @@ class InitializeCategory : AppCompatActivity() {
 
                                     var mySubcategoryParse = SubcategoryParse()
                                     mySubcategoryParse.SubcategoryName = upload.SubcategoryName
-                                    mySubcategoryParse.itemSelected = false
+                                    mySubcategoryParse.Selected = false
                                     uploaded.Subcategories.add(mySubcategoryParse)
 
 

@@ -47,7 +47,6 @@ class LoginActivityBusinessman : AppCompatActivity() {
 
                             if (task.isSuccessful){
                                 Toast.makeText(this,"Login Successful!", Toast.LENGTH_SHORT).show()
-
                                 val intent = Intent(this, DrawerActivityBusinessman::class.java)
                                 startActivity(intent)
                             } else {

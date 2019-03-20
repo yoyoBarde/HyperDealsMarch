@@ -1,10 +1,12 @@
 package com.example.kent.hyperdeals.MyAdapters
 
+import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.kent.hyperdeals.Model.PromoModel
 import com.example.kent.hyperdeals.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.notification_layout_row.view.*
@@ -12,8 +14,10 @@ import kotlinx.android.synthetic.main.notification_layout_row.view.*
 
 
 
-class PromoListAdapter(private val selectedItem: SparseBooleanArray, private val promolist : ArrayList<PromoModel>) : RecyclerView.Adapter<PromoListAdapter.ViewHolder>(){
-
+class PromoListAdapter(val context:Context ,private val selectedItem: SparseBooleanArray, private val promolist : ArrayList<PromoModel>) : RecyclerView.Adapter<PromoListAdapter.ViewHolder>(){
+companion object {
+   lateinit  var promoProfile: PromoModel
+}
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):

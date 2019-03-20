@@ -3,7 +3,7 @@ package com.example.kent.hyperdeals
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.kent.hyperdeals.MyAdapters.PromoModel
+import com.example.kent.hyperdeals.Model.PromoModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_promo__detail.*

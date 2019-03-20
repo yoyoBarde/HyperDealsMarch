@@ -2,13 +2,34 @@ package com.example.kent.hyperdeals.FragmentsBusiness
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.kent.hyperdeals.FragmentActivities.DialogFragmentAddPromoItem
+import com.example.kent.hyperdeals.MainActivity
+import com.example.kent.hyperdeals.Model.myInterfacesAddItem
+import com.example.kent.hyperdeals.Model.promoItem
+import com.example.kent.hyperdeals.Model.promoItemParcelable
+import com.example.kent.hyperdeals.MyAdapters.PromoItemAdapterBusinessman
+import com.example.kent.hyperdeals.MyAdapters.PromoListAdapter
 import com.example.kent.hyperdeals.R
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.*
+import kotlinx.android.synthetic.main.fragment_fragment_promo_sale_business.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.support.v4.toast
 
 
-class FragmentPromoSaleBusiness : Fragment() {
+class FragmentPromoSaleBusiness : Fragment(),myInterfacesAddItem {
+    companion object {
+        lateinit var promoItemListParcelable:ArrayList<promoItemParcelable>
+    }
+    val TAG = "FragmentPromoSale"
+    lateinit var recyclerPromoSale:RecyclerView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,4 +43,73 @@ class FragmentPromoSaleBusiness : Fragment() {
     }
 
 
-}
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        getPromoItem()
+        if (MainActivity.userLog){
+            btn_addItem.visibility = View.GONE
+
+        }
+        recyclerPromoSale = activity!!.findViewById(R.id.recylerviwSellItem) as RecyclerView
+
+
+
+        btn_addItem.setOnClickListener {
+
+        var myDialog = DialogFragmentAddPromoItem().newInstance()
+
+        myDialog.show(activity!!.fragmentManager,"myCustomDialog")
+
+    }
+    }
+
+
+
+    override fun addPromoItemBusiness(myPromoItemParseList:ArrayList<promoItemParcelable>) {
+
+        setAdapter(myPromoItemParseList)
+ }
+
+
+    fun setAdapter (myPromoItemParseList: ArrayList<promoItemParcelable>){
+        Log.e(TAG," interface size ${myPromoItemParseList.size}")
+//        var myAdapter = PromoItemAdapterBusinessman(activity!!,myPromoItemParseList)
+//        recyclerPromoSale.layoutManager = GridLayoutManager(activity!!,2)
+//        recyclerPromoSale.adapter = myAdapter
+    }
+
+    fun getPromoItem() {
+
+
+        var database = FirebaseFirestore.getInstance()
+         promoItemListParcelable = ArrayList<promoItemParcelable>()
+        doAsync {
+
+            database.collection("StoreItems").document(PromoListAdapter.promoProfile.promoStore).collection("PromoItems").get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    for (DocumentSnapshot in task.result) {
+                        var uploaded = DocumentSnapshot.toObject(promoItemParcelable::class.java)
+                            promoItemListParcelable.add(uploaded)
+
+                    }
+
+                    Log.e(TAG,"Retrieved ${promoItemListParcelable.size}")
+                    var myAdapter = PromoItemAdapterBusinessman(activity!!,promoItemListParcelable)
+                    recylerviwSellItem.layoutManager = GridLayoutManager(activity!!,2)
+                   recylerviwSellItem.adapter = myAdapter
+
+
+                } else
+                    toast("error")
+
+
+            }
+
+
+        }
+    }
+    }
+
+
+
+
