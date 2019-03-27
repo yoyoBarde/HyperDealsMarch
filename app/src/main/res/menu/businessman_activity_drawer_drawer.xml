@@ -13,9 +13,9 @@
             android:icon="@drawable/ic_notifications_black_24dp"
             android:title="Notifications" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_settings_black_24dp"
-            android:title="Settings" />
+            android:id="@+id/nav_stores"
+            android:icon="@drawable/store"
+            android:title="Stores" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_save_black_24dp"

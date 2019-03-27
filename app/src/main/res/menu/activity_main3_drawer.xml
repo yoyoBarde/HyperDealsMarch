@@ -12,18 +12,19 @@
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_notifications_black_24dp"
             android:title="Notifications" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_settings_black_24dp"
-            android:title="Settings" />
+
           <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_save_black_24dp"
-            android:title="Saved Deals" />
+            android:id="@+id/nav_interest"
+            android:icon="@drawable/ic_interest_like"
+            android:title="Deals you interest" />
         <item
             android:id="@+id/nav_preferemce"
             android:icon="@drawable/shop"
             android:title="Preferences" />
+        <item
+            android:id="@+id/nav_preferred_time"
+            android:icon="@mipmap/ic_preferred_time"
+            android:title="Preferred Time" />
         <item
             android:id="@+id/nav_rewards"
             android:icon="@drawable/rating"

@@ -27,13 +27,13 @@
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_back_arrow"
             />
-    <ImageView
-        android:id="@+id/iv_promo_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/hyperdealslogofinal"
-        android:padding="10dp"
-        />
+
+        <ImageView
+            android:id="@+id/iv_promo_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:src="@drawable/hyperdealslogofinal" />
     </RelativeLayout>
 
 </android.support.design.widget.AppBarLayout>

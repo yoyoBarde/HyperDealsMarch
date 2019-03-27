@@ -1,8 +1,8 @@
-package com.example.kent.hyperdeals.MyAdapters
+package com.example.kent.hyperdeals.Model
 
 import com.google.firebase.firestore.GeoPoint
 
-class PromoModelBusinessman (
+class   PromoModelBusinessman (
 
         var promoimage: String,
         var promoStore: String,
@@ -38,4 +38,8 @@ class PromoModelBusinessman (
 
 
 
-        )
+        ){
+        var approved:Boolean = false
+        var posterBy:String = " "
+
+}

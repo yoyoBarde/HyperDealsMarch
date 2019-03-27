@@ -30,7 +30,6 @@ class LocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        getLocation()
         return Service.START_STICKY
 
     }

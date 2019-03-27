@@ -53,19 +53,24 @@
         android:id="@+id/textView16"
         android:layout_width="0dp"
         android:layout_height="34dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:text="Nearby Promos"
         android:textColor="#426db8"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageHome" />
+
+    <ImageView
+        android:id="@+id/minimize_nearby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_arrow_blue_right"
+        app:layout_constraintBottom_toBottomOf="@+id/textView16"
+        app:layout_constraintStart_toEndOf="@+id/textView16"
+        app:layout_constraintTop_toTopOf="@+id/textView16" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/my_recycler_view111"
@@ -93,6 +98,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_recycler_view111" />
 
+    <ImageView
+        android:id="@+id/minimize_hottest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:src="@mipmap/ic_arrow_blue_right"
+        app:layout_constraintBottom_toBottomOf="@+id/textviewxxx"
+        app:layout_constraintStart_toEndOf="@+id/textviewxxx"
+        app:layout_constraintTop_toTopOf="@+id/textviewxxx" />
+
     <android.support.v7.widget.RecyclerView
 
         android:id="@+id/reclerView_hottest_promo"
@@ -109,14 +125,26 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:text="Prefered time"
+        android:text="Prefered Promo"
         android:textColor="#426db8"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/reclerView_hottest_promo" />
 
+    <ImageView
+        android:id="@+id/minimize_preferred"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:src="@mipmap/ic_arrow_blue_right"
+        app:layout_constraintBottom_toBottomOf="@+id/textviewxxxx"
+        app:layout_constraintStart_toEndOf="@+id/textviewxxxx"
+        app:layout_constraintTop_toTopOf="@+id/textviewxxxx" />
+
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview_prefered_promo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"

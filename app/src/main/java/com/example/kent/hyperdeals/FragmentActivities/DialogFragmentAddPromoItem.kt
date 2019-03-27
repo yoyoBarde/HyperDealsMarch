@@ -205,6 +205,7 @@ doAsync {
             myPromoItemParce.itemImageLink = myPromoItem.itemImageLink
             var myInterface = FragmentPromoSaleBusiness() as (myInterfacesAddItem)
             Log.e(TAG, FragmentPromoSaleBusiness.promoItemListParcelable.size.toString())
+            FragmentPromoSaleBusiness.promoItemListParcelable.add(myPromoItemParce)
             myInterface.addPromoItemBusiness(FragmentPromoSaleBusiness.promoItemListParcelable)
 
         }

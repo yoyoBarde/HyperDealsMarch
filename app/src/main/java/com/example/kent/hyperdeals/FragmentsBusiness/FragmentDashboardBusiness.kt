@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.kent.hyperdeals.Model.promoLikesCountParce
 import com.example.kent.hyperdeals.Model.promoViewsParde
 import com.example.kent.hyperdeals.MyAdapters.PromoListAdapter
 import com.example.kent.hyperdeals.R
@@ -37,24 +38,22 @@ val TAG = "fragmentBusiness"
 
         doAsync {
 
-            var interestedCount = 0
-            database.collection("PromoInterested").document(PromoListAdapter.promoProfile.promoStore).collection("interested_users").get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    for (DocumentSnapshot in task.result) {
-                        interestedCount +=1
-                        Log.e(TAG,"success $interestedCount")
-                    }
+     database.collection("PromoIntrested").document(PromoListAdapter.promoProfile.promoStore).
+                get().addOnSuccessListener { document ->
 
-                    uiThread { tv_interest_count.text = interestedCount.toString() }
+            if(document.exists())
+            {
 
-                } else {
-
-
-                }
-
-
+                var promoLikeCountParce = document.toObject(promoLikesCountParce::class.java)
+                var promoLikes = promoLikeCountParce.LikeCount
+                uiThread { tv_interest_count.text = promoLikes.toString() }
+                Log.e(TAG,"promolikes ${promoLikes}")
+            }
+            else{
+                Log.e(TAG,"dont exist")
             }
 
+        }
         }
 
 

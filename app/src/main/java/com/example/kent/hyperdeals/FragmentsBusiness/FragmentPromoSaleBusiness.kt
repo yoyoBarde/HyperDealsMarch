@@ -16,7 +16,7 @@ import com.example.kent.hyperdeals.Model.promoItemParcelable
 import com.example.kent.hyperdeals.MyAdapters.PromoItemAdapterBusinessman
 import com.example.kent.hyperdeals.MyAdapters.PromoListAdapter
 import com.example.kent.hyperdeals.R
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.*
 import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.fragment_fragment_promo_sale_business.*
 import org.jetbrains.anko.doAsync
@@ -27,9 +27,11 @@ class FragmentPromoSaleBusiness : Fragment(),myInterfacesAddItem {
     companion object {
         lateinit var promoItemListParcelable:ArrayList<promoItemParcelable>
     }
+    var database = FirebaseFirestore.getInstance()
+
     val TAG = "FragmentPromoSale"
     lateinit var recyclerPromoSale:RecyclerView
-
+    lateinit var myAdapter:PromoItemAdapterBusinessman
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,11 +79,30 @@ class FragmentPromoSaleBusiness : Fragment(),myInterfacesAddItem {
 //        recyclerPromoSale.layoutManager = GridLayoutManager(activity!!,2)
 //        recyclerPromoSale.adapter = myAdapter
     }
+    fun getPromoItemUpdate(){
 
+        database.collection("StoreItems").document(PromoListAdapter.promoProfile.promoStore).collection("PromoItems").addSnapshotListener(EventListener<QuerySnapshot> { snapshots, e ->
+                    if (e != null) {
+                        Log.w(TAG, "listen:error", e)
+                        return@EventListener
+                    }
+
+                    for (dc in snapshots!!.documentChanges) {
+                        if (dc.type == DocumentChange.Type.ADDED) {
+                            var uploaded = dc.document.toObject(promoItemParcelable::class.java)
+                       var myAdapterer = PromoItemAdapterBusinessman(activity!!,promoItemListParcelable)
+                            recylerviwSellItem.layoutManager = GridLayoutManager(activity!!,2)
+                            recylerviwSellItem.adapter = myAdapterer
+                            Log.e(TAG, "New Item: ${dc.document.data} ${uploaded.itemName}")
+
+                        }
+                    }
+                })
+
+    }
     fun getPromoItem() {
 
 
-        var database = FirebaseFirestore.getInstance()
          promoItemListParcelable = ArrayList<promoItemParcelable>()
         doAsync {
 
@@ -94,9 +115,9 @@ class FragmentPromoSaleBusiness : Fragment(),myInterfacesAddItem {
                     }
 
                     Log.e(TAG,"Retrieved ${promoItemListParcelable.size}")
-                    var myAdapter = PromoItemAdapterBusinessman(activity!!,promoItemListParcelable)
-                    recylerviwSellItem.layoutManager = GridLayoutManager(activity!!,2)
-                   recylerviwSellItem.adapter = myAdapter
+
+                    getPromoItemUpdate()
+
 
 
                 } else

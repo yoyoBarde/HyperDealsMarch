@@ -89,8 +89,8 @@ var contextet = this
     @SuppressLint("InflateParams")
     fun showDialog(categoryParse:CategoryParse, myPosition:Int) {
 
-        val dialogBuilder = AlertDialog.Builder(contextet.context)
-        val inflater = contextet.context.layoutInflater
+        val dialogBuilder = AlertDialog.Builder(context)
+        val inflater = context.layoutInflater
         val dialogView = inflater.inflate(R.layout.dialog_set_subcategories_user, null)
 
 
@@ -150,11 +150,14 @@ var database = FirebaseFirestore.getInstance()
         dialogBuilder.setCancelable(true)
         dialogBuilder.setTitle("Are you sure?")
         dialogBuilder.setMessage("Do you wish to remove Category?")
+
+
         dialogBuilder.setPositiveButton("Remove", DialogInterface.OnClickListener { dialogInterface, i ->
             var database = FirebaseFirestore.getInstance()
             database.collection("UserCategories").document(LoginActivity.userUIDS).collection("Categories").document(categoryName).delete().addOnCompleteListener {
                 Log.e(TAG,"$categoryName Deleted from database")
                 categoryList.removeAt(myPosition)
+
                 notifyDataSetChanged()
 
             }

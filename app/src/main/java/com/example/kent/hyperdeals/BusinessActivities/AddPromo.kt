@@ -14,7 +14,6 @@ import com.example.kent.hyperdeals.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.zaddpromobusinessman.*
 import android.webkit.MimeTypeMap
-import com.example.kent.hyperdeals.MyAdapters.PromoModelBusinessman
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlaceSelectionListener
@@ -32,11 +31,11 @@ import com.google.firebase.firestore.GeoPoint
 import android.text.format.DateFormat;
 import android.widget.*
 import com.example.kent.hyperdeals.FragmentActivities.DialogFragmentAddCategoryBusiness
-import com.example.kent.hyperdeals.Model.CategoryParse
-import com.example.kent.hyperdeals.Model.SubcategoryParse
+import com.example.kent.hyperdeals.LoginActivity
+import com.example.kent.hyperdeals.LoginActivityBusinessman
+import com.example.kent.hyperdeals.Model.*
 import com.example.kent.hyperdeals.MyAdapters.CategoryAdapterBusiness
 import com.example.kent.hyperdeals.MyAdapters.SelectedSubcategoryAdapterBusiness
-import com.example.kent.hyperdeals.Model.myInterfaces
 import org.jetbrains.anko.doAsync
 import java.text.SimpleDateFormat
 import kotlin.collections.ArrayList
@@ -44,11 +43,13 @@ import kotlin.collections.ArrayList
 
 class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePickerDialog.OnTimeSetListener, myInterfaces {
 
-
+    var globalPromoStore = " "
     companion object {
-        lateinit var recyclerViewSub:RecyclerView
+        lateinit var recyclerViewSub:RecyclerView   
         var globalCategorylist=ArrayList<CategoryParse>()
     }
+    lateinit var myStoreCategories:ArrayList<String>
+    var storeList = ArrayList<StoreModel>()
     lateinit var subcategoryList:ArrayList<String>
     var globalSubcategoryStringList = ArrayList<String>()
     val database = FirebaseFirestore.getInstance()
@@ -94,7 +95,9 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.zaddpromobusinessman)
+        getStores2()
         newFragment = DialogFragmentAddCategoryBusiness().newInstance()
         getCategories()
         recyclerViewSub = findViewById<RecyclerView>(R.id.Recycler_selectedSubcategory)
@@ -102,6 +105,10 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
         var myStagger = StaggeredGridLayoutManager(3, LinearLayoutManager.HORIZONTAL)
         recyclerViewSub.layoutManager = myStagger
         recyclerViewSub.adapter = selectedSubAdapter
+
+
+
+
 
         addPromoImage.setOnClickListener{
             val intent = Intent()
@@ -183,13 +190,13 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
         startTime.setOnClickListener {
 
             selectedEndorStart = 3
-            var myTimepicker =  TimePickerDialog(this,this,11,11,DateFormat.is24HourFormat(this))
+            var myTimepicker =  TimePickerDialog(this,this,8,0,DateFormat.is24HourFormat(this))
             myTimepicker.show()
         }
         endTime.setOnClickListener {
 
             selectedEndorStart = 4
-            var myTimepicker =  TimePickerDialog(this,this,11,11,DateFormat.is24HourFormat(this))
+            var myTimepicker =  TimePickerDialog(this,this,5,0,DateFormat.is24HourFormat(this))
             myTimepicker.show()
         }
 
@@ -274,11 +281,7 @@ class AddPromo : AppCompatActivity(),DatePickerDialog.OnDateSetListener,TimePick
         }
     }
 
-    private fun getFileExtension(uri: Uri): String? {
-        val cR = contentResolver
-        val mime = MimeTypeMap.getSingleton()
-        return mime.getExtensionFromMimeType(cR.getType(uri))
-    }
+
 
     private fun uploadFile() {
 
@@ -352,21 +355,9 @@ setAdapter(subcategoryList)
     }
 
     private fun storeDatatoFirestore(){
-//        doAsync {
-//            for(i in 0 until globalSubcategoryStringList.size){
-//
-//                pushtoDataBsae(promoSubcategory(globalSubcategoryStringList[i]))
-//
-//
-//            }
-//
-//        }
-
-
-
         addPromoProgressBar.visibility = View.VISIBLE
         Log.d("HyperDeals",subsubTag.text.toString())
-        val pStore = addPromoStore.text.toString()
+        val pStore = et_storeName.text.toString()
         val pContact = addPromoContact.text.toString()
         val pName = addPromoName.text.toString()
         val pDescription = addPromoDescription.text.toString()
@@ -374,21 +365,22 @@ setAdapter(subcategoryList)
         val pPromoPlace = addPromoLocation.text.toString()
         val pPromoImageLink = addPromoImageLink.text.toString()
 Log.e(TAG,"$pName $pStore $pContact")
-
-        val pEntity = PromoModelBusinessman("asdasd",pStore,pContact,pDescription,pPromoPlace,pName,pLatLng,pPromoImageLink,
-                GeoPoint(myGeolocation.latitude,myGeolocation.longitude),subsubTag.text.toString(),0,0,0,0
-                ,startDateYear!!
-                ,startDateMonth!!
-                ,startDateDay!!
-                ,endDateYear!!
-                ,endDateMonth!!
-                ,endDateDay!!
-                ,startTimeHour!!
-                ,startTimeMinute!!
-                ,endTimeHour!!
-                ,endTimeMinute!!
+        val pEntity = PromoModelBusinessman("asdasd", pStore, pContact, pDescription, pPromoPlace, pName, pLatLng, pPromoImageLink,
+                GeoPoint(myGeolocation.latitude, myGeolocation.longitude), subsubTag.text.toString(), 0, 0, 0, 0
+                , startDateYear!!
+                , startDateMonth!!
+                , startDateDay!!
+                , endDateYear!!
+                , endDateMonth!!
+                , endDateDay!!
+                , startTimeHour!!
+                , startTimeMinute!!
+                , endTimeHour!!
+                , endTimeMinute!!
 
         )
+        pEntity.approved = false
+        pEntity.posterBy = LoginActivityBusinessman.globalUserBusinessman.email
         pushtoDataBsae(pStore)
 
         mFirebaseFirestore.collection("PromoDetails").document(pStore).set(pEntity)
@@ -484,19 +476,7 @@ Log.e(TAG,"${myList.size}")
             recyclerViewSub.adapter = selectedSubAdapter
     }
     fun pushtoDataBsae(PromoStore:String){
-var myArrayStringSub = ArrayList<String>()
-Log.e(TAG,"pushtoDataBase   $PromoStore   ${CategoryAdapterBusiness.globalCategoryList.size}  ")
-        for(i in 0 until CategoryAdapterBusiness.globalCategoryList.size) {
-            for (j in 0 until CategoryAdapterBusiness.globalCategoryList[i].Subcategories.size){
-                if(CategoryAdapterBusiness.globalCategoryList[i].Subcategories[j].Selected){
-                    myArrayStringSub.add(CategoryAdapterBusiness.globalCategoryList[i].Subcategories[j].SubcategoryName)
-                }
-
-            }
-
-        }
-
-
+var myArrayStringSub = myStoreCategories
 
         Log.e(TAG,"time for push ${myArrayStringSub.size}")
         for(k in 0 until myArrayStringSub.size){
@@ -514,11 +494,96 @@ Log.e(TAG,"pushtoDataBase   $PromoStore   ${CategoryAdapterBusiness.globalCatego
         }
     }
     private fun showDialog() {
-
+        AddStore.Store = false
         var myDialog = DialogFragmentAddCategoryBusiness()
-
         myDialog.show(fragmentManager,"myCustomDialog")
     }
+
+    fun setSpinner(stringlist:ArrayList<String>){
+        val aa = ArrayAdapter(this, android.R.layout.simple_spinner_item, stringlist)
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        mySpinner.adapter = aa
+
+
+        mySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                globalPromoStore = LoginActivityBusinessman.globalUserBusinessman.stores[0]
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                globalPromoStore = LoginActivityBusinessman.globalUserBusinessman.stores[position]
+                Log.e(TAG," selected ${ LoginActivityBusinessman.globalUserBusinessman.stores[position]}")
+                for(i in 0 until storeList.size){
+                    if(storeList[i].storeName==stringlist[position]){
+                        changeFields(storeList[i])
+
+                    }
+                    else {
+                        noneFields()
+                    }
+
+                }
+            }
+
+        }
+    }
+    fun noneFields(){
+        addPromoPublish.visibility = View.GONE
+    }
+    fun changeFields(myStore:StoreModel){
+        myGeolocation =GeoLocation( myStore.storeLatLng.latitude,myStore.storeLatLng.longitude)
+        addPromoPublish.visibility = View.VISIBLE
+
+        et_storeName.setText(myStore.storeName)
+        addPromoLocation.setText(myStore.storeAddress)
+        addPromoContact.setText(myStore.storeContact)
+
+        myStoreCategories = ArrayList<String>()
+        myStoreCategories = myStore.storeCategories
+        var  selectedSubAdapter = SelectedSubcategoryAdapterBusiness(this,myStore.storeCategories)
+        var myStagger = StaggeredGridLayoutManager(3, LinearLayoutManager.HORIZONTAL)
+        recyclerViewSub.layoutManager = myStagger
+        recyclerViewSub.adapter = selectedSubAdapter
+
+    }
+
+    fun getStores2() {
+        var spinerList = arrayListOf<String>("None")
+        doAsync {
+            database.collection("UserBusinessman").document(LoginActivity.userUIDS).collection("Stores").get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    for (DocumentSnapshot in task.result) {
+
+
+                        val storeName = DocumentSnapshot.data.get("storeName").toString()
+                        val storeDescription = DocumentSnapshot.data.get("storeDescription").toString()
+                        val storeAddress = DocumentSnapshot.data.get("storeAddress").toString()
+                        val storeBy  = DocumentSnapshot.data.get("storeBy").toString()
+                        val storeContact= DocumentSnapshot.data.get("storeContact").toString()
+                        val storeLink = DocumentSnapshot.data.get("storeLink").toString()
+                        val storeOpenTime  = DocumentSnapshot.data.get("storeOpenTime").toString()
+                        val storeCloseTime = DocumentSnapshot.data.get("storeCloseTime").toString()
+                        val storeCategories = DocumentSnapshot.data.get("storeCategories") as ArrayList<String>
+                        var storeLatLng = DocumentSnapshot.data.get("storeLatLng") as GeoPoint
+                        val storeImage  = DocumentSnapshot.data.get("storeImage").toString()
+
+                        val myStore  = StoreModel(storeImage,storeName,storeContact,storeDescription
+                                ,storeLink, storeLatLng ,storeAddress, storeCategories,storeOpenTime,storeCloseTime,storeBy)
+                        storeList.add(myStore)
+                        spinerList.add(storeName)
+                        Log.e(TAG,myStore.toString())
+//                        Log.e(TAG,myStore.toString())
+                    }
+                    setSpinner(spinerList)
+
+
+                }
+            }
+
+        }
+    }
+
 }
 
 

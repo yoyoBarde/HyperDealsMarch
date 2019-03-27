@@ -3,20 +3,31 @@ package com.example.kent.hyperdeals
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
+import com.example.kent.hyperdeals.Model.UserBusinessmanvarParce
 import com.example.kent.hyperdeals.NavigationBar.DashboardActivity
 import com.example.kent.hyperdeals.NavigationBar.DrawerActivityBusinessman
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.loginactivity.*
 import kotlinx.android.synthetic.main.loginactivitybusinessman.*
 import kotlinx.android.synthetic.main.registrationactivitybusinessman.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.toast
+import org.jetbrains.anko.uiThread
 
 class LoginActivityBusinessman : AppCompatActivity() {
 
-
+val TAG = "LoginBusinessman"
     private var mAuth: FirebaseAuth? = null
+var database = FirebaseFirestore.getInstance()
 
+    companion object {
+        lateinit var globalUserBusinessman: UserBusinessmanvarParce
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.loginactivitybusinessman)
@@ -26,7 +37,7 @@ class LoginActivityBusinessman : AppCompatActivity() {
         BusinessmanloginPassword.setText("febuary25")
         val login = findViewById<View>(R.id.BusinessmanloginButton)
 
-        login.setOnClickListener{
+        login.setOnClickListener    {
 
             val loginEmail = findViewById<View>(R.id.BusinessmanloginEmail) as EditText
             val loginPassword = findViewById<View>(R.id.BusinessmanloginPassword) as EditText
@@ -39,24 +50,35 @@ class LoginActivityBusinessman : AppCompatActivity() {
             mAuth = FirebaseAuth.getInstance()
 
             if (!LoginEmail.isEmpty() && !LoginPassword.isEmpty()) {
-                loginProgressBar.visibility = View.VISIBLE
+                doAsync {
+                    database.collection("UserBusinessman").document(LoginEmail).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    var myUserBusinessman = document.toObject(UserBusinessmanvarParce::class.java)
+                                    if(myUserBusinessman.password == LoginPassword){
+                                      Log.e(TAG,"Success Login ${ myUserBusinessman.stores.size}")
+                                        signinAuth(LoginEmail,LoginPassword)
+                                        globalUserBusinessman = myUserBusinessman
+                                        LoginActivity.userUIDS = LoginEmail
 
-                mAuth!!.signInWithEmailAndPassword(LoginEmail, LoginPassword)
-                        .addOnCompleteListener(this) { task ->
-                            loginProgressBar.visibility = View.INVISIBLE
+                                    }
+                                    else
+                                        loginPassword.setError("Invalid passowrd")
 
-                            if (task.isSuccessful){
-                                Toast.makeText(this,"Login Successful!", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this, DrawerActivityBusinessman::class.java)
-                                startActivity(intent)
-                            } else {
-                                Toast.makeText(this,"Login Failure", Toast.LENGTH_SHORT).show()
 
+                                } else {
+                                    loginEmail.setError("Invalid email")
+
+                                }
                             }
 
-                        }
-            }
+                            .addOnFailureListener { exception ->
+                                Log.d(TAG, "get failed with ", exception)
 
+                            }
+                }
+
+            }
             else {
                 Toast.makeText(this,"Enter necessary credentials", Toast.LENGTH_SHORT).show()
 
@@ -64,5 +86,20 @@ class LoginActivityBusinessman : AppCompatActivity() {
         }
 
 
+    }
+
+    fun signinAuth(LoginEmail:String,LoginPassword:String){
+
+        mAuth!!.signInWithEmailAndPassword(LoginEmail, LoginPassword)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful){
+                        Toast.makeText(this,"Login Successful!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@LoginActivityBusinessman, DrawerActivityBusinessman::class.java))
+                    } else {
+                        Toast.makeText(this,"Login Failure", Toast.LENGTH_SHORT).show()
+
+                    }
+
+                }
     }
 }

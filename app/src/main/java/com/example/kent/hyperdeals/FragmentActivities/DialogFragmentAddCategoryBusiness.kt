@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.*
 import com.example.kent.hyperdeals.BusinessActivities.AddPromo
+import com.example.kent.hyperdeals.BusinessActivities.AddStore
 import com.example.kent.hyperdeals.MyAdapters.CategoryAdapterBusiness
 import com.example.kent.hyperdeals.R
 import com.example.kent.hyperdeals.Model.myInterfaces
@@ -50,10 +51,17 @@ val TAG = "DialogFragment"
                 }
         btn_set_category_business.setOnClickListener {
 
-            var myInterface =  AddPromo() as (myInterfaces)
 
-            myInterface.saveCategoriesBusiness(CategoryAdapterBusiness.globalCategoryList)
-            dismiss()
+            if(AddStore.Store){
+                var myInterface =  AddStore() as (myInterfaces)
+                myInterface.saveCategoriesBusiness(CategoryAdapterBusiness.globalCategoryList)
+
+            }
+            else {
+                var myInterface =  AddPromo() as (myInterfaces)
+                myInterface.saveCategoriesBusiness(CategoryAdapterBusiness.globalCategoryList)
+            }
+                dismiss()
 
         }
     }

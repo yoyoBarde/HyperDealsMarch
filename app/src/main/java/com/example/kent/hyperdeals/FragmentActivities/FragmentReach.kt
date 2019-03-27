@@ -19,6 +19,8 @@ import com.example.kent.hyperdeals.FragmentsBusiness.Business_PromoProfile
 import com.example.kent.hyperdeals.MyAdapters.PromoListAdapter
 import com.example.kent.hyperdeals.Model.PromoModel
 import com.example.kent.hyperdeals.Interface.RecyclerTouchListener
+import com.example.kent.hyperdeals.LoginActivity
+import com.example.kent.hyperdeals.LoginActivityBusinessman
 
 import com.example.kent.hyperdeals.R
 import com.google.firebase.firestore.FirebaseFirestore
@@ -67,10 +69,11 @@ class FragmentReach : Fragment() {
                     promolist.add(upload)
                     toast("success")
 
-                    mAdapter = PromoListAdapter(activity!!,mSelected, promolist)
-                    recyclerViewReach.adapter = mAdapter
 
                 }
+                Log.e("atay","MANA")
+                setAdapter(promolist)
+
 
             } else
                 toast("error")
@@ -98,7 +101,6 @@ class FragmentReach : Fragment() {
                     PromoListAdapter.promoProfile = promos
                     startActivity(Intent(activity!!,Business_PromoProfile::class.java))
 
-
                 }
                 myDialogBusiness!!.tvPromoNameBusinessman.text = promolist[position].promoname
                 myDialogBusiness!!.tvPromoLocationBusinessman.text = promolist[position].promoPlace
@@ -117,6 +119,21 @@ class FragmentReach : Fragment() {
 
 
             }
+
+    fun setAdapter(promoList:ArrayList<PromoModel>){
+        var newlist = ArrayList<PromoModel>()
+
+        for (i in 0 until promoList.size){
+            if(promoList[i].posterBy==LoginActivity.userUIDS)
+                newlist.add(promolist[i])
+        }
+        promolist = newlist
+        mAdapter = PromoListAdapter(activity!!,mSelected, newlist)
+        recyclerViewReach.adapter = mAdapter
+
+
+
+    }
 }
 
 

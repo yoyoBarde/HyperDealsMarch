@@ -46,7 +46,7 @@ val TAG = "Business_promoProfile"
 
         if(MainActivity.userLog){
 
-            adapter.addFragments(FragmentDashboardBusiness(),"Related Promo")
+            adapter.addFragments(FragmentRelatedPromos(),"Similar Promos")
 
         }
         else{

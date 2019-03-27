@@ -1,18 +1,28 @@
 package com.example.kent.hyperdeals.FragmentActivities;
 
+import android.app.Application;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.kent.hyperdeals.FragmentsBusiness.Business_PromoProfile;
 import com.example.kent.hyperdeals.LoginActivity;
+import com.example.kent.hyperdeals.Model.PromoModel;
 import com.example.kent.hyperdeals.Model.subsubModel;
 import com.example.kent.hyperdeals.Promo_Detail;
 import com.example.kent.hyperdeals.R;
@@ -31,8 +41,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -44,6 +58,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -51,6 +66,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -65,6 +81,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,6 +89,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static com.google.android.gms.internal.zzahn.runOnUiThread;
@@ -79,7 +97,7 @@ import static com.google.android.gms.internal.zzahn.runOnUiThread;
 public class FragmentProMap extends Fragment implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener, GoogleMap.OnMarkerClickListener {
 
     public static String keyoo;
     private GoogleMap mMap;
@@ -88,12 +106,15 @@ public class FragmentProMap extends Fragment implements OnMapReadyCallback,
     private static final int PLAY_SERVICE_RESULATION_REQUEST = 300193;
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient nGoogleApiClient;
     private Location mLastLocaiton;
     private static final int NOTIFICATION_ID_OPEN_ACTIVITY=9;
     private static int UPDATE_INTERVAL = 5000;
     private static int FATEST_INTERVAL = 3000;
     private static int DISPLACEMENT = 10;
-    final static String TAG="HyperDeals";
+    int count = 0;
+    private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40,-168),new LatLng(71,136));
+    final static String TAG="Promap";
     Bitmap globalBitmap;
     View mView;
     GeoLocation userGeo;
@@ -102,10 +123,18 @@ public class FragmentProMap extends Fragment implements OnMapReadyCallback,
     Marker mCurrent;
     VerticalSeekBar mVerticalSeekBar;
     MapView mMapView;
+    ImageView btnSearch;
+    Context context;
   ArrayList<subsubModel> arraysubsub=new ArrayList<subsubModel>();
+    ArrayList<PromoModel> globalPromoList;
+    private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
+
+    private AutoCompleteTextView mSearchText;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
 
         mView =inflater.inflate(R.layout.fragment_fragment_pro_map, container, false);
         return  mView;
@@ -142,22 +171,69 @@ public class FragmentProMap extends Fragment implements OnMapReadyCallback,
 
             }
         });
+        mSearchText = (AutoCompleteTextView) getView().findViewById(R.id.input_search);
+        btnSearch = (ImageView) getView().findViewById(R.id.imageView8);
 
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG,"onClick");
+                geoLocate();
+            }
+        });
 
-       LatLng mylatlang = new LatLng(10.232466,123.768052);
-      LatLng endLatLng = new LatLng(10.242898,123.788163);
-      Log.e(TAG,"Result = "+CalculationByDistance(mylatlang,endLatLng));
-        Log.e(TAG,"Result = "+CalculationByDistance(mylatlang,endLatLng));
-        Log.e(TAG,"Result = "+CalculationByDistance(mylatlang,endLatLng));
-
-        Log.e(TAG,"Result = "+CalculationByDistance(mylatlang,endLatLng));
-
-setUpdateLocation();
+        setUpdateLocation();
 
 
     }
+    private void geoLocate(){
+    Log.e(TAG,"geoLocate");
+    String searchString = mSearchText.getText().toString();
+    Geocoder geocoder = new Geocoder(getActivity());
+        List<Address> list = new ArrayList<>();
+        try{
+            list = geocoder.getFromLocationName(searchString,1);
+        }
+        catch (IOException e){
+            Log.e(TAG,"Geolocate IOEXCEPTION"+e.getMessage());
+        }
+
+        if(list.size()>0){
 
 
+            Address address = list.get(0);
+            Log.e(TAG,address.toString());
+            LatLng coordinate = new LatLng(address.getLatitude(),address.getLongitude());
+            CameraUpdate yourLocation = CameraUpdateFactory.newLatLngZoom(coordinate, 12);
+            mMap.animateCamera(yourLocation);
+        }
+
+    }
+    private void init(Context context){
+        nGoogleApiClient = new GoogleApiClient
+                .Builder(context)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(getActivity(), this)
+                .build();
+        mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(getActivity(),mGoogleApiClient,LAT_LNG_BOUNDS,null);
+        mSearchText.setAdapter(mPlaceAutocompleteAdapter);
+    mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+            Log.e(TAG,"atay razz");
+            if(i == EditorInfo.IME_ACTION_SEARCH || i ==EditorInfo.IME_ACTION_DONE || keyEvent.getAction()==KeyEvent.ACTION_DOWN
+            || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER
+            ){
+
+                Log.e(TAG,"search map");
+            geoLocate();
+            }
+
+            return false;
+        }
+    });
+    }
     public double CalculationByDistance(LatLng StartP, LatLng EndP) {
 
 
@@ -190,8 +266,9 @@ setUpdateLocation();
         Log.e(TAG,"onMapReady");
        new GetImageFromURL().execute("asd");
         //add GeoQuery here
-
         Log.e(TAG,"onMapReady");
+        init(getActivity());
+
 
     }
     public void putMarkerImage(final Bitmap mybitmap,GeoPoint mygeo,LatLng mypromoGeo,String promoName){
@@ -201,10 +278,76 @@ setUpdateLocation();
         mMap.addMarker(new MarkerOptions().title(promoName)
                 .position(mypromoGeo)
                 .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
-
-        Log.e(TAG,"putMarkerImage"+promoName);
+        mMap.setOnMarkerClickListener(this);
 
     }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        count+=1;
+        Log.e(TAG,marker.getTitle()+ "yoyo");
+        if(count==2) {
+            for (int i = 0; i < FragmentCategory.globalPromoList.size(); i++) {
+                Log.e(TAG, marker.getTitle() + "  " + FragmentCategory.globalPromoList.get(i).getPromoname());
+                if (marker.getTitle().equals(FragmentCategory.globalPromoList.get(i).getPromoname())) {
+
+                    Log.e(TAG, "Matched");
+                    showDialog(FragmentCategory.globalPromoList.get(i),getActivity());
+
+
+                }
+
+            }
+            count=0;
+        }
+        return false;
+    }
+    void showDialog(final PromoModel myPromoModel, final Context context) {
+
+
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.zzhomelistitem, null);
+
+        dialogBuilder.setCancelable(true);
+
+        dialogBuilder.setView(dialogView);
+
+        DecimalFormat df = new DecimalFormat("#.##");
+        ImageView promoImage = dialogView.findViewById(R.id.homePromoImage);
+        TextView promoStore = dialogView.findViewById(R.id.homePromoStore);
+        TextView promoname = dialogView.findViewById(R.id.homePromoName);
+        TextView promoDistance = dialogView.findViewById(R.id.tv_distance);
+        ConstraintLayout container = dialogView.findViewById(R.id.constraint_holder);
+        Picasso.get()
+                .load(myPromoModel.getPromoImageLink())
+                .placeholder(R.drawable.hyperdealslogofinal)
+                .into(promoImage);
+
+        promoStore.setText(myPromoModel.getPromoStore());
+        promoname.setText(myPromoModel.getPromoname());
+        promoDistance.setText(String.valueOf(df.format(CalculationByDistance(new LatLng(userGeo.latitude,userGeo.longitude),myPromoModel.getPromoLocation()))));
+
+        AlertDialog b = dialogBuilder.create();
+
+        container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(context, Business_PromoProfile.class);
+                myIntent.putExtra("object",myPromoModel);
+                startActivity(myIntent);
+
+            }
+        });
+
+        b.show();
+        b.setCancelable(true);
+
+
+
+    }
+
     public class GetImageFromURL2 extends AsyncTask<String,Void,Bitmap> {
         String Url ;
         GeoPoint mygeo;
@@ -229,7 +372,6 @@ setUpdateLocation();
                 Bitmap myBitmap = BitmapFactory.decodeStream(srt);
                 bitmaps = myBitmap;
                 OnNewSensorData(myBitmap,mygeo,PromoGeo,PromoName);
-                Log.e(TAG,"successxx ulol gago inutil"+PromoName+PromoGeo);
             } catch (Exception e){
                 Log.d(TAG,"failed");
                 e.printStackTrace();
@@ -272,7 +414,6 @@ setUpdateLocation();
                                     myImageUrl.PromoGeo = PromoGeo;
                                     myImageUrl.PromoName = PromoName;
                                     myImageUrl.execute(Url);
-                                    Log.e(TAG,"Loops fetch"+globalBitmap);
 
                                 }
                             } else {
@@ -384,7 +525,7 @@ setUpdateLocation();
             //   }
             //  });
 
-            detectGeofence();
+//            detectGeofence();
             Log.d(TAG, String.format("Your last location was chaged: %f / %f", latitude, longitude));
         } else {
             Log.d(TAG, "Can not get your location.");

@@ -46,6 +46,13 @@ val TAG =" FragmentPrompDe"
         super.onViewCreated(view, savedInstanceState)
         var database = FirebaseFirestore.getInstance()
 var likeRetrieved = false
+
+        var endDate = getMonthInwords(PromoListAdapter.promoProfile.endDateMonth)
+        if (getMonthInwords(PromoListAdapter.promoProfile.startDateMonth)==getMonthInwords(PromoListAdapter.promoProfile.endDateMonth))
+        {
+            endDate= ""
+        }
+        promoDuration.text = getMonthInwords(PromoListAdapter.promoProfile.startDateMonth)+" ${PromoListAdapter.promoProfile.startDateDay} until ${endDate} ${PromoListAdapter.promoProfile.endDateDay}"
         tv_promoTitle.text = PromoListAdapter.promoProfile.promoname
         tv_promoStore.text = PromoListAdapter.promoProfile.promoStore
         tv_promoPlace.text = PromoListAdapter.promoProfile.promoPlace
@@ -137,6 +144,51 @@ var likeRetrieved = false
 
     }
 
+
+    fun getMonthInwords(month:Int):String{
+    var detectedMonth = " "
+    if(month==1){
+        detectedMonth = "January"
+    }
+    else if(month==2){
+detectedMonth = "February"
+    }
+    else if(month==3){
+detectedMonth =  "March"
+    }
+    else if(month==4){
+detectedMonth = "April"
+    }
+    else if(month==5){
+detectedMonth = "May"
+    }
+    else if(month==6){
+detectedMonth = "June"
+    }
+    else if(month==7){
+detectedMonth = "July"
+    }
+    else if(month==8){
+detectedMonth = "August"
+    }
+    else if(month==9){
+detectedMonth = "September"
+    }
+    else if(month==10){
+detectedMonth = "October"
+    }
+    else if(month==11){
+detectedMonth = "November"
+    }
+    else if(month==12){
+detectedMonth = "December"
+    }
+
+
+
+
+        return detectedMonth
+    }
 
 
 

@@ -17,9 +17,7 @@ import com.example.kent.hyperdeals.FragmentActivities.FragmentCategory
 import com.example.kent.hyperdeals.FragmentActivities.FragmentProMapList
 import com.example.kent.hyperdeals.FragmentActivities.FragmentProMap
 import com.example.kent.hyperdeals.MainActivity
-import com.example.kent.hyperdeals.NavigationOptionsActivity.Profile
-import com.example.kent.hyperdeals.NavigationOptionsActivity.UserPreference
-import com.example.kent.hyperdeals.NavigationOptionsActivity.UserRewards
+import com.example.kent.hyperdeals.NavigationOptionsActivity.*
 import com.example.kent.hyperdeals.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -40,6 +38,8 @@ class DashboardActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         setContentView(R.layout.activity_main3)
         MainActivity.userLog = true
         setSupportActionBar(toolbar)
+
+
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container1.adapter = mSectionsPagerAdapter
 
@@ -134,17 +134,16 @@ class DashboardActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_gallery -> {
 
             }
-            R.id.nav_slideshow -> {
-
-            }
-            R.id.nav_manage -> {
-
+            R.id.nav_interest -> {
+                val intent = Intent (this, UserInterest::class.java)
+                startActivity(intent)
             }
             R.id.nav_share -> {
 
             }
-            R.id.nav_send -> {
-
+            R.id.nav_preferred_time -> {
+                val intent = Intent (this, UserPreferredTime::class.java)
+                startActivity(intent)
             }
             R.id.nav_preferemce ->{
                 val intent = Intent (this, UserPreference::class.java)

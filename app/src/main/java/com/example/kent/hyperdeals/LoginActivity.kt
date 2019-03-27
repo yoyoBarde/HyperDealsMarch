@@ -31,12 +31,9 @@ companion object{
 
    //     startActivity(Intent(this,InitializeCategory::class.java))
 
-        startActivity(Intent(this, Business_PromoProfile::class.java))
-
       //  startActivity(Intent(this,DashboardActivity::class.java))
 loginEmail.setText("juriusu25@gmail.com")
 loginPassword.setText("febuary25")
-
         val login = findViewById<View>(R.id.loginButton)
 
         login.setOnClickListener{
@@ -80,25 +77,7 @@ loginPassword.setText("febuary25")
         }
 
     }
-    private fun getUserUID(email:String){
-        var db: FirebaseFirestore = FirebaseFirestore.getInstance()
-        var documentReference: DocumentReference = db.collection("EmailUID").document(email)
-        documentReference.get().addOnCompleteListener(OnCompleteListener<DocumentSnapshot> { task ->
-            if (task.isSuccessful) {
 
-                val document = task.result
-
-                if (document.exists()) {
-                    Log.d(TAG, "documenet exist"+document.getString("userUID"))
-              //      userUIDS=document.getString("userUID")!!
-                } else {
-                    Log.d(TAG, "No such document")
-                }
-            } else {
-                Log.d(TAG, "get failed with ", task.exception)
-            }
-        })
-    }
 
 }
 

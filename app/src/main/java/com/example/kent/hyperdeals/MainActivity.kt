@@ -3,10 +3,14 @@ package com.example.kent.hyperdeals
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import com.example.kent.hyperdeals.BusinessActivities.AddStore
 import com.example.kent.hyperdeals.NavigationBar.DashboardActivity
 import com.example.kent.hyperdeals.NavigationBar.DrawerActivityBusinessman
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
 
 class MainActivity : AppCompatActivity() {
 companion object {
@@ -15,8 +19,8 @@ companion object {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val intent = Intent(this, DashboardActivity::class.java)
-        startActivity(intent)
+
+
 
         btnregister.setOnClickListener {
 //            startActivity(Intent(this,InitializeCategory::class.java))
@@ -38,4 +42,6 @@ companion object {
             startActivity(Intent (this,LoginActivityBusinessman::class.java))
         }
     }
+
+
 }

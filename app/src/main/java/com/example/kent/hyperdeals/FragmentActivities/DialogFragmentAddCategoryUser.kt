@@ -44,18 +44,8 @@ class DialogFragmentAddCategoryUser : DialogFragment() {
 
             dismiss()
         }
-
         Log.e(TAG," onViewCreated ${UserPreference.categoryListAll.size}  OKAY  ${UserPreference.categoryList.size}")
 
-//        getCategories()
-//
-//        btn_add_preference.setOnClickListener {
-//
-//            var myInterface =  UserPreference() as (myInterfacesCategories)
-//
-//            myInterface.addCategoriesUser()
-//            dismiss()
-//        }
         btn_add_preference.setOnClickListener {
             var myInterface =  UserPreference() as (myInterfacesCategories)
 

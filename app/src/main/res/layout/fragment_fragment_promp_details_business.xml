@@ -123,6 +123,7 @@
             android:textColor="@color/promostore_color"
             />
         <TextView
+            android:id="@+id/promoDuration"
             android:textSize="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

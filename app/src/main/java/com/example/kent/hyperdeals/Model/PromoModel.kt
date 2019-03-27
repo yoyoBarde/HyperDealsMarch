@@ -4,40 +4,50 @@ import android.graphics.Bitmap
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
+import java.util.*
 
 
-class    PromoModel() : Parcelable{
-        var promoimage : String = ""
-        var promoname : String = ""
+class PromoModel() : Parcelable {
+        var promoimage: String = ""
+        var promoname: String = ""
         var promodescription: String = ""
-        var promoPlace:String= ""
-        var promoContactNumber: String= ""
+        var promoPlace: String = ""
+        var promoContactNumber: String = ""
         var promoCount: Int = 0
         var promoStore: String = ""
         var promoLatLng: String = ""
-        var promoImageLink : String = ""
-        var promoLocation :LatLng = LatLng(123.213,12331.23)
+        var promoImageLink: String = ""
+        var promoLocation: LatLng = LatLng(123.213, 12331.23)
 
 
-        var sent:Int = 0
+        var sent: Int = 0
         var viewed: Int = 0
         var interested: Int = 0
         var dismissed: Int = 0
-        var distance: String =""
+        var distance: String = "0"
         lateinit var promoImageBitmap: Bitmap
 
-        var startDateYear:Int = 0
-        var startDateMonth:Int = 0
-        var startDateDay:Int = 0
-        var endDateYear:Int = 0
-        var endDateMonth:Int = 0
-        var endDateDay:Int = 0
-        var startTimeHour:Int = 0
-        var startTimeMinute:Int = 0
-        var endTimeHour:Int = 0
-        var endTimeMinute:Int = 0
+        var startDateYear: Int = 0
+        var startDateMonth: Int = 0
+        var startDateDay: Int = 0
+        var endDateYear: Int = 0
+        var endDateMonth: Int = 0
+        var endDateDay: Int = 0
+        var startTimeHour: Int = 0
+        var startTimeMinute: Int = 0
+        var endTimeHour: Int = 0
+        var endTimeMinute: Int = 0
+
+        var relatedPromoMatched:Int = 0
+        var preferenceMatched: Int = 0
+        var subcategories = ArrayList<String>()
+        var approved: Boolean = false
+        var posterBy: String = " "
 
 
+        var startDateCalendar = Calendar.getInstance()
+        var endDateCalendar =Calendar.getInstance()
+        var hottestPoints = 0
 
         constructor(parcel: Parcel) : this() {
                 promoimage = parcel.readString()
@@ -49,23 +59,25 @@ class    PromoModel() : Parcelable{
                 promoStore = parcel.readString()
                 promoLatLng = parcel.readString()
                 promoImageLink = parcel.readString()
-
+                promoLocation = parcel.readParcelable(LatLng::class.java.classLoader)
                 sent = parcel.readInt()
                 viewed = parcel.readInt()
                 interested = parcel.readInt()
                 dismissed = parcel.readInt()
                 distance = parcel.readString()
-
-                 startDateYear = parcel.readInt()
-                 startDateMonth = parcel.readInt()
-                 startDateDay = parcel.readInt()
-                 endDateYear = parcel.readInt()
-                 endDateMonth = parcel.readInt()
-                 endDateDay = parcel.readInt()
-                 startTimeHour = parcel.readInt()
-                 startTimeMinute = parcel.readInt()
-                 endTimeHour = parcel.readInt()
-                 endTimeMinute = parcel.readInt()
+                startDateYear = parcel.readInt()
+                startDateMonth = parcel.readInt()
+                startDateDay = parcel.readInt()
+                endDateYear = parcel.readInt()
+                endDateMonth = parcel.readInt()
+                endDateDay = parcel.readInt()
+                startTimeHour = parcel.readInt()
+                startTimeMinute = parcel.readInt()
+                endTimeHour = parcel.readInt()
+                endTimeMinute = parcel.readInt()
+                preferenceMatched = parcel.readInt()
+                approved = parcel.readByte() != 0.toByte()
+                posterBy = parcel.readString()
         }
 
         override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -78,13 +90,12 @@ class    PromoModel() : Parcelable{
                 parcel.writeString(promoStore)
                 parcel.writeString(promoLatLng)
                 parcel.writeString(promoImageLink)
-
+                parcel.writeParcelable(promoLocation, flags)
                 parcel.writeInt(sent)
                 parcel.writeInt(viewed)
                 parcel.writeInt(interested)
                 parcel.writeInt(dismissed)
                 parcel.writeString(distance)
-
                 parcel.writeInt(startDateYear)
                 parcel.writeInt(startDateMonth)
                 parcel.writeInt(startDateDay)
@@ -95,6 +106,9 @@ class    PromoModel() : Parcelable{
                 parcel.writeInt(startTimeMinute)
                 parcel.writeInt(endTimeHour)
                 parcel.writeInt(endTimeMinute)
+                parcel.writeInt(preferenceMatched)
+                parcel.writeByte(if (approved) 1 else 0)
+                parcel.writeString(posterBy)
         }
 
         override fun describeContents(): Int {
@@ -111,5 +125,5 @@ class    PromoModel() : Parcelable{
                 }
         }
 
-}
 
+}

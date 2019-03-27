@@ -12,13 +12,15 @@ import com.example.kent.hyperdeals.Model.*
 import com.example.kent.hyperdeals.MyAdapters.PreferenceChangeAdapter
 import com.example.kent.hyperdeals.R
 import com.example.kent.hyperdeals.Model.myInterfacesCategories
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.android.synthetic.main.activity_user_preference.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 
 class UserPreference : AppCompatActivity(), myInterfacesCategories {
-
 
     val database = FirebaseFirestore.getInstance()
     lateinit var myAdapter:PreferenceChangeAdapter
@@ -30,7 +32,7 @@ class UserPreference : AppCompatActivity(), myInterfacesCategories {
     }
 
     lateinit var myContext:Context
-val TAG = "UserPreference"
+    val TAG = "UserPreference"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_preference)
@@ -123,31 +125,31 @@ val TAG = "UserPreference"
 //
 //    }
     override fun addCategoriesUser(myCategoryList: ArrayList<CategoryParse>) {
-for(i in 0 until myCategoryList.size){
-    if(myCategoryList[i].SelectedAll)
-    {
-        var tempCategoryName = myCategoryList[i].categoryName
-        var tempSelectedAll = myCategoryList[i].SelectedAll
-        var tempSubcategories = ArrayList<SubcategoryModelx>()
-        var tempCategoryImage = myCategoryList[i].CategoryImage
-        for(j in 0 until myCategoryList[i].Subcategories.size){
+        for(i in 0 until myCategoryList.size){
+            if(myCategoryList[i].SelectedAll)
+            {
+                var tempCategoryName = myCategoryList[i].categoryName
+                var tempSelectedAll = myCategoryList[i].SelectedAll
+                var tempSubcategories = ArrayList<SubcategoryModelx>()
+                var tempCategoryImage = myCategoryList[i].CategoryImage
+                for(j in 0 until myCategoryList[i].Subcategories.size){
 
 
-            tempSubcategories.add(SubcategoryModelx(myCategoryList[i].Subcategories[j].SubcategoryName, true))
-           Log.e(TAG, myCategoryList[i].Subcategories[j].Selected.toString()+"Bantog ra")
-            myCategoryList[i].Subcategories[j].Selected=true
-        }
-        var final = CategoryModel(tempCategoryName, tempSelectedAll, tempSubcategories)
-        final.CategoryImage = myCategoryList[i].CategoryImage
-        doAsync {
-        database.collection("UserCategories").document(LoginActivity.userUIDS).collection("Categories").document(final.categoryName).set(final).addOnCompleteListener {
-            Log.e(TAG, "pushed to db")
-        }
-        }
-        categoryList.add(myCategoryList[i])
-    }
+                    tempSubcategories.add(SubcategoryModelx(myCategoryList[i].Subcategories[j].SubcategoryName, true))
+                    Log.e(TAG, myCategoryList[i].Subcategories[j].Selected.toString()+"Bantog ra")
+                    myCategoryList[i].Subcategories[j].Selected=true
+                }
+                var final = CategoryModel(tempCategoryName, tempSelectedAll, tempSubcategories)
+                final.CategoryImage = myCategoryList[i].CategoryImage
+                doAsync {
+                    database.collection("UserCategories").document(LoginActivity.userUIDS).collection("Categories").document(final.categoryName).set(final).addOnCompleteListener {
+                        Log.e(TAG, "pushed to db")
+                    }
+                }
+                categoryList.add(myCategoryList[i])
+            }
 
-}
+        }
 
         setAdapter()
 
@@ -163,31 +165,52 @@ for(i in 0 until myCategoryList.size){
     }
     fun getCategories() {
         Log.e(TAG,"retreiving ${LoginActivity.userUIDS} Categories")
-            categoryList = ArrayList<CategoryParse>()
-            database.collection("UserCategories").document(LoginActivity.userUIDS).collection("Categories").get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    for (document in task.result) {
-                        var userCategory = document.toObject(CategoryParse::class.java)
-                        Log.e(TAG,categoryList.size.toString()+" totalCount retrieve")
-
-                        categoryList.add(userCategory)
-                    }
+        categoryList = ArrayList<CategoryParse>()
+        database.collection("UserCategories").document(LoginActivity.userUIDS).collection("Categories").get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                for (document in task.result) {
+                    var userCategory = document.toObject(CategoryParse::class.java)
                     Log.e(TAG,categoryList.size.toString()+" totalCount retrieve")
-                    Log.e(TAG,task.result.toString()+"   atay     " + task.isSuccessful.toString())
-                    myAdapter = PreferenceChangeAdapter(this@UserPreference,categoryList)
-                    recycler_edit_user_preference.layoutManager = GridLayoutManager(this@UserPreference,2)
-                    recycler_edit_user_preference.adapter = myAdapter
 
-
-
+                    categoryList.add(userCategory)
                 }
+                Log.e(TAG,categoryList.size.toString()+" totalCount retrieve")
+                Log.e(TAG,task.result.toString()+"   atay     " + task.isSuccessful.toString())
+                getUserCategoryUpdate()
+
+
+
+            }
 
 
         }.addOnFailureListener {
 
-                        Log.e(TAG,"Fail so bad")
-                    }
+            Log.e(TAG,"Fail so bad")
+        }
     }
 
+    fun getUserCategoryUpdate(){
 
+        database.collection("UserCategories").document(LoginActivity.userUIDS).collection("Categories").addSnapshotListener(EventListener<QuerySnapshot> { snapshots, e ->
+            if (e != null) {
+                Log.w(TAG, "listen:error", e)
+                return@EventListener
+            }
+
+            for (dc in snapshots!!.documentChanges) {
+                if (dc.type == DocumentChange.Type.ADDED) {
+                    var uploaded = dc.document.toObject(CategoryParse::class.java)
+                    var changed = PreferenceChangeAdapter(this, categoryList)
+                    UserPreference.recylerview.layoutManager = GridLayoutManager(this,2)
+                    UserPreference.recylerview.adapter = changed
+                    Log.e(TAG, "New Item: ${dc.document.data} ${uploaded.categoryName}")
+
+                }
+            }
+        })
+
+    }
 }
+
+
+

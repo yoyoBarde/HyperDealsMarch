@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.example.kent.hyperdeals.BusinessActivities.AddPromo
+import com.example.kent.hyperdeals.BusinessActivities.Business_Stores
 import com.example.kent.hyperdeals.FragmentActivities.*
 import com.example.kent.hyperdeals.MainActivity
 import com.example.kent.hyperdeals.NavigationOptionsActivity.Profile
@@ -119,8 +120,10 @@ class DrawerActivityBusinessman : AppCompatActivity(), NavigationView.OnNavigati
             R.id.nav_gallery -> {
 
             }
-            R.id.nav_slideshow -> {
+            R.id.nav_stores -> {
 
+                val intent = Intent (this, Business_Stores::class.java)
+                startActivity(intent)
             }
             R.id.nav_manage -> {
 
@@ -143,5 +146,7 @@ class DrawerActivityBusinessman : AppCompatActivity(), NavigationView.OnNavigati
         return true
     }
 
+    fun getUserStores(){
 
+    }
 }
