@@ -50,32 +50,11 @@ var database = FirebaseFirestore.getInstance()
             mAuth = FirebaseAuth.getInstance()
 
             if (!LoginEmail.isEmpty() && !LoginPassword.isEmpty()) {
+                LoginActivity.userUIDS = LoginEmail
                 doAsync {
-                    database.collection("UserBusinessman").document(LoginEmail).get()
-                            .addOnSuccessListener { document ->
-                                if (document.exists()) {
-                                    var myUserBusinessman = document.toObject(UserBusinessmanvarParce::class.java)
-                                    if(myUserBusinessman.password == LoginPassword){
-                                      Log.e(TAG,"Success Login ${ myUserBusinessman.stores.size}")
-                                        signinAuth(LoginEmail,LoginPassword)
-                                        globalUserBusinessman = myUserBusinessman
-                                        LoginActivity.userUIDS = LoginEmail
 
-                                    }
-                                    else
-                                        loginPassword.setError("Invalid passowrd")
+                    signinAuth(LoginEmail,LoginPassword)
 
-
-                                } else {
-                                    loginEmail.setError("Invalid email")
-
-                                }
-                            }
-
-                            .addOnFailureListener { exception ->
-                                Log.d(TAG, "get failed with ", exception)
-
-                            }
                 }
 
             }
